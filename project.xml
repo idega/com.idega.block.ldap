@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>${base.project.dir}/base-dependencies.xml</extend>
+  <name>idegaWeb LDAP Server/Client</name>
+  <groupId>bundles</groupId>
+  <artifactId>com.idega.block.ldap</artifactId>
+  <currentVersion>1.0-SNAPSHOT</currentVersion>
+  <organization/>
+  <inceptionYear>2004</inceptionYear>
+  <shortDescription>An add-on module for supporting LDAP synchronization on top of the idegaWeb User system</shortDescription>
+  <versions/>
+  <branches/>
+  <developers>
+    <developer>
+      <name>Eirikur Hrafnsson</name>
+      <id>eiki</id>
+      <email>eiki@idega.is</email>
+      <organization>idega software</organization>
+      <roles/>
+    </developer>
+    <developer>
+      <name>Tryggvi Larusson</name>
+      <id>tryggvil</id>
+      <email>tryggvi@idega.is</email>
+      <organization>idega software</organization>
+      <roles/>
+    </developer>
+  </developers>
+  <dependencies>
+    <dependency>
+      <groupId>bundles</groupId>
+      <artifactId>com.idega.core</artifactId>
+      <!--<version>1.9</version>-->
+      <version>SNAPSHOT</version>
+      <type>jar</type>
+      <url>http://www.idega.com/</url>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>javaldap</groupId>
+      <artifactId>java-ldapserver</artifactId>
+      <version>0.4</version>
+      <type>jar</type>
+      <url>http://codehaus.org/~trygvis/ldap</url>
+      <properties>
+        <idegaweb.bundle.include>true</idegaweb.bundle.include>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>bundles</groupId>
+      <artifactId>com.idega.developer</artifactId>
+      <!--<version>1.0</version>-->
+      <version>SNAPSHOT</version>
+      <type>jar</type>
+      <url>http://www.idega.com/</url>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>bundles</groupId>
+      <artifactId>com.idega.user</artifactId>
+      <!--<version>1.0</version>-->
+      <version>SNAPSHOT</version>
+      <type>jar</type>
+      <url>http://www.idega.com/</url>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
+    </dependency>
+  </dependencies>
+</project>

@@ -1,0 +1,46 @@
+import com.idega.core.ldap.replication.business.LDAPReplicationBusiness;
+import com.idega.business.IBOLookup;
+import com.idega.idegaweb.IWMainApplication;
+import com.idega.user.data.*;
+
+public class IWLDAPWS {
+
+	public String registerReplicationListener(String serverName, int portNumber, String  IWLDAPWSUri){
+		try {
+		
+			LDAPReplicationBusiness biz = (LDAPReplicationBusiness) IBOLookup.getServiceInstance(IWMainApplication.getDefaultIWApplicationContext(),LDAPReplicationBusiness.class);
+			boolean success = biz.registerReplicationListener(serverName, portNumber, IWLDAPWSUri);
+			
+			if(success){
+				return "iwldap-ok";
+			}
+			else{
+				return "failed to register the replication listener!";
+			}   
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return "Service failed to register the replication listener due to an internal error. The error message was :"+e.getMessage();
+		}
+	}
+	
+	
+	public String notifyOnUserChanged(String userUUID, String replicationServerHostName, int ldapPort){
+		try {
+		
+			LDAPReplicationBusiness biz = (LDAPReplicationBusiness) IBOLookup.getServiceInstance(IWMainApplication.getDefaultIWApplicationContext(),LDAPReplicationBusiness.class);
+			User user = biz.replicateUserByUUID(userUUID, replicationServerHostName, ldapPort);
+			
+			if(user!=null){
+				return "iwldap-ok";
+			}
+			else{
+				return "failed to find/update the user, is your ldap server running?";
+			}   
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return "Service failed to update the due to an internal error. The error message was :"+e.getMessage();
+		}
+	}
+}
