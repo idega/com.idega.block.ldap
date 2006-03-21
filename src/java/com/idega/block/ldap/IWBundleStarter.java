@@ -1,4 +1,4 @@
-package com.idega.core.ldap.business;
+package com.idega.block.ldap;
 
 /**
  * This bundle starter starts up an embedded LDAP server. <br>
@@ -17,7 +17,7 @@ import com.idega.idegaweb.IWBundleStartable;
 import com.idega.user.business.GroupBusiness;
 import com.idega.user.business.UserBusiness;
 
-public class IWLDAPBundleStarter implements IWBundleStartable,EmbeddedLDAPServerConstants,LDAPReplicationConstants {
+public class IWBundleStarter implements IWBundleStartable,EmbeddedLDAPServerConstants,LDAPReplicationConstants {
 	private UserBusiness userBiz;
 
 	private GroupBusiness groupBiz;
@@ -32,7 +32,7 @@ public class IWLDAPBundleStarter implements IWBundleStartable,EmbeddedLDAPServer
 
 	public static final String LDAP_CONFIG_DIRECTORY_NAME = "ldap";
 
-	public IWLDAPBundleStarter() {
+	public IWBundleStarter() {
 
 	}
 
