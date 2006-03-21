@@ -71,5 +71,12 @@
         <eclipse.dependency>true</eclipse.dependency>
       </properties>
     </dependency>
+    <dependency>
+          <groupId>bundles</groupId>
+          <artifactId>com.idega.block.ldap</artifactId>
+          <version>SNAPSHOT</version>
+          <type>iwbar</type>
+          <url>http://www.idega.com</url>
+    </dependency>
   </dependencies>
 </project>
