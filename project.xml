@@ -5,7 +5,7 @@
   <name>idegaWeb LDAP Server/Client</name>
   <groupId>bundles</groupId>
   <artifactId>com.idega.block.ldap</artifactId>
-  <currentVersion>1.0-SNAPSHOT</currentVersion>
+  <currentVersion>3.1.0</currentVersion>
   <organization/>
   <inceptionYear>2004</inceptionYear>
   <shortDescription>An add-on module for supporting LDAP synchronization on top of the idegaWeb User system</shortDescription>
@@ -31,8 +31,7 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.core</artifactId>
-      <!--<version>1.9</version>-->
-      <version>SNAPSHOT</version>
+      <version>3.1.0</version>
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>
@@ -52,8 +51,7 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.developer</artifactId>
-      <!--<version>1.0</version>-->
-      <version>SNAPSHOT</version>
+      <version>3.1.0</version>
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>
@@ -63,8 +61,7 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.user</artifactId>
-      <!--<version>1.0</version>-->
-      <version>SNAPSHOT</version>
+      <version>3.1.0</version>
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>
