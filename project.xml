@@ -6,7 +6,7 @@
   <name>idegaWeb LDAP Server/Client</name>
   <groupId>bundles</groupId>
   <artifactId>com.idega.block.ldap</artifactId>
-  <currentVersion>3.1.0</currentVersion>
+  <currentVersion>3.1.1</currentVersion>
   <organization/>
   <inceptionYear>2004</inceptionYear>
   <shortDescription>An add-on module for supporting LDAP synchronization on top of the idegaWeb User system</shortDescription>

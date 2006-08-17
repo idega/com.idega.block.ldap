@@ -426,6 +426,9 @@ LDAPReplicationConstants {
 	}
 
 	protected DirectoryString getDirectoryStringForIdentifier(String identifier) {
+		if(identifier==null){
+			identifier = "";
+		}
 		return new DirectoryString(identifier);
 	}
 
