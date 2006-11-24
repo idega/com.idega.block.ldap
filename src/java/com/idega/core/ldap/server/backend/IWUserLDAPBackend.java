@@ -767,15 +767,16 @@ LDAPReplicationConstants {
 	protected void addPhonesToEntry(User user, Entry entry) {
 		//phone stuff
 		try {
-			try {
-				Phone fax;
-				fax = getUserBusiness().getPhoneHome().findUsersFaxPhone(user);
-				List faxNumber = getAttributeListForSingleEntry(fax.getNumber());
-				entry.put(getDirectoryStringForIdentifier(LDAP_ATTRIBUTE_FAX_NUMBER), faxNumber);
-			}
-			catch (FinderException e1) {
-				//e1.printStackTrace();
-			}
+			//implement on both ends, also work phone?
+//			try {
+//				Phone fax;
+//				fax = getUserBusiness().getPhoneHome().findUsersFaxPhone(user);
+//				List faxNumber = getAttributeListForSingleEntry(fax.getNumber());
+//				entry.put(getDirectoryStringForIdentifier(LDAP_ATTRIBUTE_FAX_NUMBER), faxNumber);
+//			}
+//			catch (FinderException e1) {
+//				//e1.printStackTrace();
+//			}
 			
 			
 			try {

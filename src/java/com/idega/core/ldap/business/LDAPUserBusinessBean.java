@@ -1,5 +1,5 @@
 /*
- * $Id: LDAPUserBusinessBean.java,v 1.1 2006/03/21 12:08:58 tryggvil Exp $
+ * $Id: LDAPUserBusinessBean.java,v 1.2 2006/11/24 12:06:56 eiki Exp $
  * Created on 16.11.2005 in project com.idega.core
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -12,12 +12,15 @@ package com.idega.core.ldap.business;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Date;
+
 import javax.ejb.CreateException;
 import javax.ejb.EJBException;
 import javax.ejb.FinderException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+
 import org.codehaus.plexus.ldapserver.server.syntax.DirectoryString;
+
 import com.idega.block.ldap.util.IWLDAPUtil;
 import com.idega.business.IBOLookupException;
 import com.idega.business.IBOServiceBean;
@@ -40,10 +43,10 @@ import com.idega.util.text.Name;
  * <p>
  * Service bean class for manipulating Users in LDAP
  * </p>
- *  Last modified: $Date: 2006/03/21 12:08:58 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2006/11/24 12:06:56 $ by $Author: eiki $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class LDAPUserBusinessBean extends IBOServiceBean implements LDAPUserBusiness,IWLDAPConstants {
 
@@ -183,12 +186,11 @@ public class LDAPUserBusinessBean extends IBOServiceBean implements LDAPUserBusi
 		
 		String userPassword = ldapUtil.getSingleValueOfAttributeByAttributeKey(LDAP_ATTRIBUTE_USER_PASSWORD,attributes);
 		String email = ldapUtil.getSingleValueOfAttributeByAttributeKey(LDAP_ATTRIBUTE_EMAIL, attributes);
-		//String homePhone =
-		// ldapUtil.getSingleValueOfAttributeByAttributeKey(LDAP_ATTRIBUTE_TELEPHONE_NUMBER,attributes);
-		//String fax =
-		// ldapUtil.getSingleValueOfAttributeByAttributeKey(LDAP_ATTRIBUTE_FAX_NUMBER,attributes);
-		//String mobile =
-		// ldapUtil.getSingleValueOfAttributeByAttributeKey(LDAP_ATTRIBUTE_MOBILE_NUMBER,attributes);
+		
+		String homePhone = ldapUtil.getSingleValueOfAttributeByAttributeKey(LDAP_ATTRIBUTE_TELEPHONE_NUMBER,attributes);
+		//String fax = ldapUtil.getSingleValueOfAttributeByAttributeKey(LDAP_ATTRIBUTE_FAX_NUMBER,attributes);
+		String mobile = ldapUtil.getSingleValueOfAttributeByAttributeKey(LDAP_ATTRIBUTE_MOBILE_NUMBER,attributes);
+		
 		String fullAddressString =  ldapUtil.getSingleValueOfAttributeByAttributeKey(LDAP_ATTRIBUTE_REGISTERED_ADDRESS,attributes);
 
 		String gender = ldapUtil.getSingleValueOfAttributeByAttributeKey(LDAP_ATTRIBUTE_IDEGAWEB_GENDER, attributes);
@@ -286,6 +288,25 @@ public class LDAPUserBusinessBean extends IBOServiceBean implements LDAPUserBusi
 			e1.printStackTrace();
 		}
 		
+//		update/register the home phone
+		try {
+			if(homePhone!=null){
+				getUserBusiness().updateUserHomePhone(user, homePhone);		
+			}
+		} catch (EJBException e1) {
+			e1.printStackTrace();
+		}
+		
+		//update/register the mobile
+		try{
+			if(mobile!=null){
+				getUserBusiness().updateUserMobilePhone(user, mobile);				
+			}
+		} catch (EJBException e1) {
+			e1.printStackTrace();
+		}
+		
+				
 		//the login
 		if(userName!=null){
 			try {

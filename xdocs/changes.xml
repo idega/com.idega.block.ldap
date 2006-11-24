@@ -5,6 +5,12 @@
   </properties>
   <body>
 
+	<release version="3.1.2" date="2006-11-24">
+      <action dev="eiki" type="update">
+        Added replication for phones, home and mobile for USERS(no work and fax yet)
+      </action>              
+	</release>
+	
 	<release version="3.1.1" date="2006-08-17">
       <action dev="eiki" type="fix">
         Added nullcheck so replication would not stop on empty emails.
