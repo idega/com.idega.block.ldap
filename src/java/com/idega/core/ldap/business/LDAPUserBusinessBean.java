@@ -1,5 +1,5 @@
 /*
- * $Id: LDAPUserBusinessBean.java,v 1.2 2006/11/24 12:06:56 eiki Exp $
+ * $Id: LDAPUserBusinessBean.java,v 1.3 2007/05/23 23:44:38 sigtryggur Exp $
  * Created on 16.11.2005 in project com.idega.core
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -43,10 +43,10 @@ import com.idega.util.text.Name;
  * <p>
  * Service bean class for manipulating Users in LDAP
  * </p>
- *  Last modified: $Date: 2006/11/24 12:06:56 $ by $Author: eiki $
+ *  Last modified: $Date: 2007/05/23 23:44:38 $ by $Author: sigtryggur $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class LDAPUserBusinessBean extends IBOServiceBean implements LDAPUserBusiness,IWLDAPConstants {
 
@@ -329,6 +329,7 @@ public class LDAPUserBusinessBean extends IBOServiceBean implements LDAPUserBusi
 				login.store();
 			}
 			catch (IDOStoreException e) {
+				System.out.println("Problem with creating userlogin: " + userName);
 				e.printStackTrace();
 			}
 			catch (EJBException e) {
