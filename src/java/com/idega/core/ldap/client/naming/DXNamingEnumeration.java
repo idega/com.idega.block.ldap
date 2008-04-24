@@ -63,7 +63,8 @@ public class DXNamingEnumeration implements NamingEnumeration
             return compareString.compareTo(compObject.toString()); 
         }
         
-        public String toString() { return compareString; }
+        @Override
+				public String toString() { return compareString; }
         
         public Object getObject() {return myObject; }
     }
@@ -213,9 +214,10 @@ public class DXNamingEnumeration implements NamingEnumeration
     *    'cause DXNamingEnumeration isn't really an enumeration, and
     *    has already slurped all the data... :-)
     */
-    public void close() {;} 
+    public void close() {} 
     
-    public String toString()  // mainly used for debugging
+    @Override
+		public String toString()  // mainly used for debugging
     {
         StringBuffer ret = new StringBuffer();
         for (int i=0; i<data.size(); i++)
