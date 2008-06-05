@@ -305,10 +305,10 @@ public class DXAttribute extends BasicAttribute
                     if (isBinarySyntax(syntaxName))
                         return true;
                 }
-                /*else
+                else
                 {
                     CBUtility.log("%$%$%$%$%$%$%$%$ Can't find SYNTAX for... " + a.getID());
-                }*/
+                }
             }
             catch (Exception e)
             {
@@ -559,7 +559,7 @@ public class DXAttribute extends BasicAttribute
      */
 
     @Override
-		public String toString()
+    public String toString()
     {
         int count = 1;
         try
@@ -611,7 +611,7 @@ public class DXAttribute extends BasicAttribute
     }
 
     @Override
-		public String getID()
+    public String getID()
     {
          String id = super.getID();
          if (verboseBinary && !(id.endsWith(";binary")))
