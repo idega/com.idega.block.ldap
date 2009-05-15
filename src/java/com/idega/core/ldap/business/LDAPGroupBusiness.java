@@ -1,5 +1,5 @@
 /*
- * $Id: LDAPGroupBusiness.java,v 1.1 2006/03/21 12:08:58 tryggvil Exp $
+ * $Id: LDAPGroupBusiness.java,v 1.2 2009/05/15 07:24:26 valdas Exp $
  * Created on 16.11.2005 in project com.idega.core
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -14,6 +14,8 @@ import javax.ejb.CreateException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import org.codehaus.plexus.ldapserver.server.syntax.DirectoryString;
+
+import com.idega.business.IBOService;
 import com.idega.core.ldap.client.naming.DN;
 import com.idega.user.data.Group;
 
@@ -21,12 +23,12 @@ import com.idega.user.data.Group;
  * <p>
  * Class for manipulating data for Groups in LDAP and idegaWeb.
  * </p>
- *  Last modified: $Date: 2006/03/21 12:08:58 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2009/05/15 07:24:26 $ by $Author: valdas $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
-public interface LDAPGroupBusiness {
+public interface LDAPGroupBusiness extends IBOService {
 
 	/**
 	 * Creates or updated a group from an LDAP DN and its attributes and adds it under the root (directly under in the group tree) of the default Domain (ICDomain) and/or the supplied parent group
