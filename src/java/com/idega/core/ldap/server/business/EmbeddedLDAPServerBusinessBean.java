@@ -11,10 +11,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
-
 import org.codehaus.plexus.ldapserver.server.EmbeddedLDAPServer;
 import org.codehaus.plexus.ldapserver.server.syntax.DirectoryString;
-
 import com.idega.business.IBOServiceBean;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWMainApplicationSettings;
@@ -121,7 +119,7 @@ public class EmbeddedLDAPServerBusinessBean extends IBOServiceBean implements Em
 	public synchronized Properties loadProperties(String pathToSettingsFile)
 			throws IOException {
 		Properties properties = new SortedProperties();
-		properties.load(new FileInputStream(FileUtil.getFileFromWorkspace(pathToSettingsFile)));
+		properties.load(new FileInputStream(pathToSettingsFile));
 		return properties;
 	}
 

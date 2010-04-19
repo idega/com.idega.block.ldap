@@ -558,7 +558,6 @@ public class DXAttribute extends BasicAttribute
      *
      */
 
-    @Override
     public String toString()
     {
         int count = 1;
@@ -610,7 +609,6 @@ public class DXAttribute extends BasicAttribute
         log.log(Level.FINER,"setting binary attribute status to " + status);
     }
 
-    @Override
     public String getID()
     {
          String id = super.getID();
