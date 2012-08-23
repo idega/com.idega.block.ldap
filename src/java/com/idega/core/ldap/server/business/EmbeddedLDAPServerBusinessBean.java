@@ -120,9 +120,19 @@ public class EmbeddedLDAPServerBusinessBean extends IBOServiceBean implements Em
 
 	public synchronized Properties loadProperties(String pathToSettingsFile)
 			throws IOException {
-		Properties properties = new SortedProperties();
-		properties.load(new FileInputStream(FileUtil.getFileFromWorkspace(pathToSettingsFile)));
-		return properties;
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(FileUtil.getFileFromWorkspace(pathToSettingsFile));
+
+			Properties properties = new SortedProperties();
+			properties.load(fis);
+			return properties;
+		}
+		finally {
+			if (fis != null) {
+				fis.close();
+			}
+		}
 	}
 
 

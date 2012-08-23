@@ -288,8 +288,18 @@ public class JndiSocketFactory extends SSLSocketFactory
                  *    keystore password.
                  */
 
-                if (clientKeystoreFile != null)
-                    clientKeystore.load(new FileInputStream(clientKeystoreFile), clientPassphrase);
+                if (clientKeystoreFile != null) {
+                	FileInputStream fis = null;
+                	try {
+                		fis = new FileInputStream(clientKeystoreFile);
+                		clientKeystore.load(fis, clientPassphrase);
+                	}
+                	finally {
+                		if (fis != null) {
+                			fis.close();
+                		}
+                	}
+                }
             }
             /*
              *    Create a key manager using the default sun X509 key manager
@@ -333,8 +343,16 @@ public class JndiSocketFactory extends SSLSocketFactory
             // caPassword may be null for some keystores (e.g. a 'JKS' keystore), and it is not an error.
             //if (caPassphrase == null && DEFAULT_KEYSTORE_TYPE.equals(caKeystoreType) == false)
             //    throw new Exception("Internal SSL Initialisation error: No password for non standard trusted server (CA) keystore.");
-
-            caKeystore.load(new FileInputStream(caKeystoreFile), caPassphrase);
+        	FileInputStream fis = null;
+        	try {
+	        	fis = new FileInputStream(caKeystoreFile);
+	            caKeystore.load(fis, caPassphrase);
+        	}
+        	finally {
+        		if (fis != null) {
+        			fis.close();
+        		}
+        	}
         }
 
         /*

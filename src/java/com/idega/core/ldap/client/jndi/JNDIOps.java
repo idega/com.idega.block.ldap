@@ -256,7 +256,8 @@ public class JNDIOps
      *  	@return a newly created DirContext.
      */
 
-    public static DirContext openContext(Properties env)
+    @SuppressWarnings("unused")
+	public static DirContext openContext(Properties env)
             throws NamingException
     {
         DirContext ctx = new InitialDirContext(env);
