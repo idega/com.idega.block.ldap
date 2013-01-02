@@ -156,6 +156,8 @@ public class CBUtility
             int chars_read = 0;
             while (chars_read < size)
                 chars_read += in.read(data, chars_read, size - chars_read);
+            
+            in.close();
 
             return new String(data);  // use default locale encoding...
     }
@@ -186,6 +188,8 @@ public class CBUtility
 
             while (bytes_read < size)
                 bytes_read += in.read(data, bytes_read, size - bytes_read);
+            
+            in.close();
 
             return readI18NByteArray(data);
     }
@@ -301,7 +305,7 @@ public class CBUtility
     public static Properties readPropertyFile(String fileName)
     {
         Properties propertyList = new Properties();
-
+        FileInputStream in = null;
         try
         {
             File propertyFile = new File (fileName);
@@ -311,7 +315,7 @@ public class CBUtility
                 return propertyList; // return empty properties list
             }
 
-            FileInputStream in = new FileInputStream(propertyFile);
+            in = new FileInputStream(propertyFile);
             propertyList.load(in);
             return propertyList;
         }
@@ -319,6 +323,16 @@ public class CBUtility
         {
             CBUtility.log("Can't read property list:\n" + fileName + "\n" + e);
             return propertyList;
+        }
+        finally {
+        	if (in != null) {
+        		try {
+					in.close();
+				}
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+        	}
         }
     }
 
@@ -348,17 +362,28 @@ public class CBUtility
 
     public static void writePropertyFile(String fileName, Properties propertyList, String comments)
     {
+    	FileOutputStream out = null;
         try
         {
             File propertyFile = new File (fileName);
 
-            FileOutputStream out = new FileOutputStream(propertyFile);
+            out = new FileOutputStream(propertyFile);
 
             propertyList.store(out, "Generated Property List " + fileName + "\n" + ((comments!=null)?comments:""));
         }
         catch (java.lang.Exception e)
         {
             CBUtility.log("Can't write property list:\n" + fileName + "\n" + e);
+        }
+        finally {
+        	if (out != null) {
+        		try {
+					out.close();
+				}
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+        	}
         }
     }
 

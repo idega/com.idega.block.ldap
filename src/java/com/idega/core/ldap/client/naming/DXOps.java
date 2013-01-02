@@ -498,8 +498,8 @@ public class DXOps extends AdvancedOps
             dels = DXAttributes.getDeletionSet(newRDN, oldSet, newSet);
             adds = DXAttributes.getAdditionSet(newRDN, oldSet, newSet);
 
-			if (false)
-				printDebug(oldSet, newSet, adds, reps, dels);
+			/*if (false)
+				printDebug(oldSet, newSet, adds, reps, dels);*/
 
             CBUtility.log("updateNode: ", 4);
 
@@ -564,7 +564,7 @@ public class DXOps extends AdvancedOps
       *	@param dels list of attributes to delete.
       */
 
-      private void printDebug(DXEntry oldSet, DXEntry newSet, DXAttributes adds, DXAttributes reps, DXAttributes dels)
+      /*private void printDebug(DXEntry oldSet, DXEntry newSet, DXAttributes adds, DXAttributes reps, DXAttributes dels)
       {
 
 
@@ -573,5 +573,5 @@ public class DXOps extends AdvancedOps
           System.out.println("\n-----------------\ndels:\n" + dels.toString());
           System.out.println("\n-----------------\nadds:\n" + adds.toString());
           //Thread.currentThread().dumpStack();
-      }
+      }*/
 }

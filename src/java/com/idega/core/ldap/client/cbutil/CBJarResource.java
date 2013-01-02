@@ -74,7 +74,8 @@ public final class CBJarResource
      *     Returns the last modified date of the zip file.
      */
 
-    public long getLastModified()
+    @SuppressWarnings("unused")
+	public long getLastModified()
     {
         File zip = new File(zipFileName);
         if (zip == null)
@@ -137,14 +138,13 @@ public final class CBJarResource
         try
         {
             ZipEntry entry = (ZipEntry)entries.get(name);
-            InputStream in = zipFile.getInputStream(entry);
 
             if (entry == null)
             {
                 throw new ZipException("Unable to find: " + name + " in zip file " + zipFileName);
             }
 
-            return readZipEntryData(in, entry);
+            return readZipEntryData(entry);
        }
        catch (IOException e)
        {
@@ -222,13 +222,16 @@ public final class CBJarResource
     * @param ze the single zip entry to extract from the file.
     */
 
-    protected byte[] readZipEntryData(InputStream is, ZipEntry ze)
+    protected byte[] readZipEntryData(ZipEntry ze)
         throws java.io.IOException
     {
+        InputStream is = zipFile.getInputStream(ze);
+
         int size=(int)ze.getSize();
 
         if (size==-1)
         {
+        	is.close();
             CBUtility.log("bizarre size error in zip entry reading = corrupt zip file?"); return null;
         }
 
@@ -251,6 +254,8 @@ public final class CBJarResource
                 System.out.print(CBUtility.byte2Hex(b[i]) + " ");
             System.out.println("\n");
         /* */
+        
+        is.close();
 
         return b;
     }

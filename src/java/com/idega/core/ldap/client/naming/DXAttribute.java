@@ -307,7 +307,7 @@ public class DXAttribute extends BasicAttribute
                 }
                 else
                 {
-                    CBUtility.log("%$%$%$%$%$%$%$%$ Can't find SYNTAX for... " + a.getID());
+                    CBUtility.log("%$%$%$%$%$%$%$%$ Can't find SYNTAX... ");
                 }
             }
             catch (Exception e)
