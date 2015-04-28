@@ -10,10 +10,14 @@
 package com.idega.core.ldap.business;
 
 import java.rmi.RemoteException;
+
 import javax.ejb.CreateException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+
 import org.codehaus.plexus.ldapserver.server.syntax.DirectoryString;
+
+import com.idega.business.IBOService;
 import com.idega.core.ldap.client.naming.DN;
 import com.idega.user.data.Group;
 
@@ -22,11 +26,11 @@ import com.idega.user.data.Group;
  * Class for manipulating data for Groups in LDAP and idegaWeb.
  * </p>
  *  Last modified: $Date: 2006/03/21 12:08:58 $ by $Author: tryggvil $
- * 
+ *
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
  * @version $Revision: 1.1 $
  */
-public interface LDAPGroupBusiness {
+public interface LDAPGroupBusiness extends IBOService {
 
 	/**
 	 * Creates or updated a group from an LDAP DN and its attributes and adds it under the root (directly under in the group tree) of the default Domain (ICDomain) and/or the supplied parent group
@@ -75,7 +79,7 @@ public interface LDAPGroupBusiness {
 	/**
 	 * Finds the correct group from the database using the directory strings
 	 * group structure
-	 * 
+	 *
 	 * @param dn
 	 * @return a Group data bean
 	 */

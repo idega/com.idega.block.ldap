@@ -14,13 +14,16 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+
 import javax.ejb.CreateException;
 import javax.ejb.FinderException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+
 import org.codehaus.plexus.ldapserver.server.syntax.DirectoryString;
+
 import com.idega.block.ldap.util.IWLDAPUtil;
 import com.idega.business.IBOServiceBean;
 import com.idega.core.ldap.IWLDAPConstants;
@@ -35,11 +38,11 @@ import com.idega.util.ListUtil;
  * Business class for manipulating groups in LDAP
  * </p>
  *  Last modified: $Date: 2006/03/21 12:08:58 $ by $Author: tryggvil $
- * 
+ *
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
  * @version $Revision: 1.1 $
  */
-public class LDAPGroupBusinessBean extends IBOServiceBean implements IWLDAPConstants, LDAPGroupBusiness{
+public class LDAPGroupBusinessBean extends IBOServiceBean implements IWLDAPConstants, LDAPGroupBusiness {
 
 	/**
 	 * Comment for <code>serialVersionUID</code>
@@ -47,21 +50,22 @@ public class LDAPGroupBusinessBean extends IBOServiceBean implements IWLDAPConst
 	private static final long serialVersionUID = -5851403555280878882L;
 
 	/**
-	 * 
+	 *
 	 */
 	public LDAPGroupBusinessBean() {
 		super();
 	}
-	
-	
+
+
 	/* (non-Javadoc)
 	 * @see com.idega.core.ldap.business.LDAPGroupBusiness#createOrUpdateGroup(com.idega.core.ldap.client.naming.DN, javax.naming.directory.Attributes, boolean, com.idega.user.data.Group)
 	 */
-	  public Group createOrUpdateGroup(DN distinguishedName,Attributes attributes, boolean createUnderRootDomainGroup, Group parentGroup)throws CreateException,NamingException,RemoteException{
+	  @Override
+	public Group createOrUpdateGroup(DN distinguishedName,Attributes attributes, boolean createUnderRootDomainGroup, Group parentGroup)throws CreateException,NamingException,RemoteException{
 	  	IWLDAPUtil ldapUtil = IWLDAPUtil.getInstance();
 	 	int homePageID,homeFolderID,aliasID;
 	 	homePageID=homeFolderID=aliasID=-1;
-	 	
+
 	  	String name = ldapUtil.getNameOfGroupFromAttributes(attributes);
 	  	String description = ldapUtil.getSingleValueOfAttributeByAttributeKey(LDAP_ATTRIBUTE_DESCRIPTION,attributes);
 	  	String abbr = ldapUtil.getSingleValueOfAttributeByAttributeKey(LDAP_ATTRIBUTE_IDEGAWEB_ABBREVIATION,attributes);
@@ -71,17 +75,17 @@ public class LDAPGroupBusinessBean extends IBOServiceBean implements IWLDAPConst
 		}
 		//needs to be done, otherwise the create group will fail or at least the group is not displayed in the userapp
 		getGroupBusiness().createVisibleGroupType(type);
-		
+
 		String uniqueID =  ldapUtil.getSingleValueOfAttributeByAttributeKey(LDAP_ATTRIBUTE_IDEGAWEB_UNIQUE_ID,attributes);
 		//String email = ldapUtil.getSingleValueOfAttributeByAttributeKey(LDAP_ATTRIBUTE_EMAIL,attributes);
 		//String address = ldapUtil.getSingleValueOfAttributeByAttributeKey(LDAP_ATTRIBUTE_REGISTERED_ADDRESS,attributes);
 		//String phone = ldapUtil.getSingleValueOfAttributeByAttributeKey(LDAP_ATTRIBUTE_TELEPHONE_NUMBER,attributes);
-		
+
 		//search for the group
 		//try to find the group by its unique id or DN
 	  	//if it is found this must mean an update
 	  	Group group = getGroupByDNOrUniqueId(distinguishedName, uniqueID);
-	  	
+
 	  	if(group==null){
 	  		System.out.println("GroupBusiness: Group not found by directoryString. Creating a new group...");
 	  		group = getGroupBusiness().createGroup(name,description,type,homePageID,homeFolderID,aliasID,createUnderRootDomainGroup,parentGroup);
@@ -90,7 +94,7 @@ public class LDAPGroupBusinessBean extends IBOServiceBean implements IWLDAPConst
 	  			group.store();
 	  		}
 	  	}
-	  	
+
 		//TODO update the group
 		group.setName(name);
 		group.setDescription(description);
@@ -100,24 +104,25 @@ public class LDAPGroupBusinessBean extends IBOServiceBean implements IWLDAPConst
 		if(uniqueID!=null){
 			group.setUniqueId(uniqueID);
 		}
-		
+
 		//todoupdate emails,addresses,phone and email
 		group.store();
-	
+
 		List parent = group.getParentGroups();
 		if(parent.isEmpty() && parentGroup!=null){
 			parentGroup.addGroup(group);
 		}
-	  	
+
 	  	//set all the attributes as metadata also
 	  	setMetaDataFromLDAPAttributes(group,distinguishedName,attributes);
-	  	
+
 	  	return group;
 	  }
-	
+
 /* (non-Javadoc)
  * @see com.idega.core.ldap.business.LDAPGroupBusiness#getGroupByDNOrUniqueId(com.idega.core.ldap.client.naming.DN, java.lang.String)
  */
+	@Override
 	public Group getGroupByDNOrUniqueId(DN distinguishedName, String uniqueID) throws RemoteException {
 		Group group = null;
 	  	IWLDAPUtil ldapUtil = IWLDAPUtil.getInstance();
@@ -129,7 +134,7 @@ public class LDAPGroupBusinessBean extends IBOServiceBean implements IWLDAPConst
 				System.out.println("GroupBusiness: Group not found by unique id: "+uniqueID);
 			}
 	  	}
-	  	
+
 	  	if(group==null && distinguishedName!=null){
 			group = getGroupByDirectoryString(ldapUtil.convertDNToDirectoryString(distinguishedName));
 	  	}
@@ -139,30 +144,31 @@ public class LDAPGroupBusinessBean extends IBOServiceBean implements IWLDAPConst
 	/* (non-Javadoc)
 	 * @see com.idega.core.ldap.business.LDAPGroupBusiness#setMetaDataFromLDAPAttributes(com.idega.user.data.Group, com.idega.core.ldap.client.naming.DN, javax.naming.directory.Attributes)
 	 */
+		@Override
 		public void setMetaDataFromLDAPAttributes(Group group, DN distinguishedName, Attributes attributes) {
 			IWLDAPUtil ldapUtil = IWLDAPUtil.getInstance();
-			
+
 			//good to have for future lookup, should actually be multivalued!
 			if(distinguishedName!=null){
 				group.setMetaData(IWLDAPConstants.LDAP_META_DATA_KEY_DIRECTORY_STRING,distinguishedName.toString().toLowerCase());
 			}
-			
+
 			if (attributes != null) {
 				NamingEnumeration attrlist = attributes.getAll();
 				try {
 					while (attrlist.hasMore()) {
 						Attribute att = (Attribute) attrlist.next();
-						
+
 						//only store true meta data keys and not ldap keys that have been handled already
 						if(ldapUtil.isAttributeIWMetaDataKey(att)){
 							String key = ldapUtil.getAttributeKeyWithoutMetaDataNamePrefix(att);
 							String keyWithPrefix = att.getID();
-							
+
 							if(key.indexOf("binary")<0){
 								String value;
 								try {
 									value = ldapUtil.getSingleValueOfAttributeByAttributeKey(keyWithPrefix, attributes);
-									
+
 									if(value.length()<=2000){
 										if("".equals(value)){
 											value = null;
@@ -179,7 +185,7 @@ public class LDAPGroupBusinessBean extends IBOServiceBean implements IWLDAPConst
 								catch (Exception e) {
 									System.err.println("[GroupBusiness] attribute has no value or an error occured: "+key);
 								}
-								
+
 							}
 							else{
 								System.out.print("[GroupBusiness] binary attributes not supported yet: "+key);
@@ -191,45 +197,48 @@ public class LDAPGroupBusinessBean extends IBOServiceBean implements IWLDAPConst
 					e.printStackTrace();
 				}
 			}
-			
+
 			group.store();
-			
+
 		}
-		
-		
+
+
 
 	/* (non-Javadoc)
 	 * @see com.idega.core.ldap.business.LDAPGroupBusiness#createOrUpdateGroup(com.idega.core.ldap.client.naming.DN, javax.naming.directory.Attributes)
 	 */
-	  public Group createOrUpdateGroup(DN distinguishedName,Attributes attributes)throws CreateException,NamingException,RemoteException{
+	  @Override
+	public Group createOrUpdateGroup(DN distinguishedName,Attributes attributes)throws CreateException,NamingException,RemoteException{
 	  	return createOrUpdateGroup(distinguishedName,attributes,true,null);
 	  }
-	  
+
 	  /* (non-Javadoc)
 	 * @see com.idega.core.ldap.business.LDAPGroupBusiness#createOrUpdateGroup(com.idega.core.ldap.client.naming.DN, javax.naming.directory.Attributes, com.idega.user.data.Group)
 	 */
-	  public Group createOrUpdateGroup(DN distinguishedName,Attributes attributes, Group parentGroup)throws CreateException,NamingException,RemoteException{
+	  @Override
+	public Group createOrUpdateGroup(DN distinguishedName,Attributes attributes, Group parentGroup)throws CreateException,NamingException,RemoteException{
 	  	return createOrUpdateGroup(distinguishedName,attributes,false,parentGroup);
 	  }
 
 		/* (non-Javadoc)
 		 * @see com.idega.core.ldap.business.LDAPGroupBusiness#getGroupByDirectoryString(org.codehaus.plexus.ldapserver.server.syntax.DirectoryString)
 		 */
+		@Override
 		public Group getGroupByDirectoryString(DirectoryString dn) throws RemoteException {
 			//TODO use one of the DN helper classes to do this cleaner
 			String identifier = dn.getDirectoryString().toLowerCase();
 			String dnFromMetaDataKey = IWLDAPConstants.LDAP_META_DATA_KEY_DIRECTORY_STRING;
 			Group group = null;
-			
+
 			//try and get by metadata first then by inaccurate method
 			Collection groups = getGroupBusiness().getGroupsByMetaDataKeyAndValue(dnFromMetaDataKey,identifier);
-			
+
 			if(!groups.isEmpty() && groups.size()==1){
 				//we found it!
 				group = (Group)groups.iterator().next();
 			}
 			else{
-				//LAST CHECK! 
+				//LAST CHECK!
 				//Warning this is potentially inaccurate and slow.
 				//1. We start with shrinking the DN to the groups parent DN
 				//2. Then we look for that group by its metadata
@@ -263,15 +272,15 @@ public class LDAPGroupBusinessBean extends IBOServiceBean implements IWLDAPConst
 									candidates.add(child);
 								}
 							}
-							
+
 							if(!candidates.isEmpty() && candidates.size()==1){
 								group = (Group)candidates.iterator().next();
 							}
 						}
 					}else if(potentialParent.isEmpty()){
-						
+
 						Collection possibleGroups = getGroupBusiness().getGroupsByGroupName(groupName);
-						
+
 						if(!possibleGroups.isEmpty()){
 							List dnParts = util.getListOfStringsFromDirectoryString(dn);
 							String rootDN = IWLDAPUtil.getInstance().getRootDNString();
@@ -286,14 +295,14 @@ public class LDAPGroupBusinessBean extends IBOServiceBean implements IWLDAPConst
 									group = child;
 								}
 							}
-							
+
 						}
 					}
-					
+
 				}
 			}
-			
-			
+
+
 			return group;
 		}
 
@@ -318,7 +327,7 @@ public class LDAPGroupBusinessBean extends IBOServiceBean implements IWLDAPConst
 				Group parent = (Group)parents.get(0);
 				int size = dnParts.size();
 				String name = ldapUtil.removeTrailingSpaces(parent.getName());
-				
+
 				if(name.equals(parentName) && indexOfChildsParentInDNParts<size){
 					//keep on checking this parents parent...recursive
 					isPathCorrect = isParentPathCorrectFromDN(parent,++indexOfChildsParentInDNParts,dnParts,rootDN);
@@ -334,14 +343,14 @@ public class LDAPGroupBusinessBean extends IBOServiceBean implements IWLDAPConst
 				if(!restOfDn.equals(rootDN)){
 					isPathCorrect = false;
 				}
-				
+
 			}
-			
+
 			return isPathCorrect;
 		}
 
 		protected GroupBusiness getGroupBusiness() throws RemoteException {
-			return (GroupBusiness) getServiceInstance(GroupBusiness.class);
+			return getServiceInstance(GroupBusiness.class);
 		}
-		
+
 }
