@@ -64,8 +64,8 @@ public class CBArray
     {
 //System.out.println("difference starting; lengths " + a.length + " and " + b.length);    
         if (a==null||b==null) return null;
-        if (a.length==0 ) return (a.clone());  
-        if (b.length==0 ) return (a.clone());  
+        if (a.length==0 ) return ((Object[])a.clone());  
+        if (b.length==0 ) return ((Object[])a.clone());  
         
         Object[] temp = new Object[a.length];
         int len=0;
@@ -97,8 +97,8 @@ public class CBArray
     {
 //System.out.println("intersection starting; lengths " + a.length + " and " + b.length);    
         if (a==null||b==null) return null;
-        if (a.length==0) return (a.clone());
-        if (b.length==0) return (b.clone());
+        if (a.length==0) return ((Object[])a.clone());
+        if (b.length==0) return ((Object[])b.clone());
         
         if (a.length>b.length)            // make a the smallest array
         {

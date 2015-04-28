@@ -3,7 +3,7 @@ package com.idega.core.ldap.server.business;
 /**
  * This bean has methods for starting and stopping the embedded ldap server and
  * getting its status <br>
- * 
+ *
  * @copyright Idega Software 2004
  * @author <a href="mailto:eiki@idega.is">Eirikur Hrafnsson </a>
  */
@@ -35,9 +35,10 @@ public class EmbeddedLDAPServerBusinessBean extends IBOServiceBean implements Em
 	/**
 	 * Gets the absolut path to the IdegaWeb embedded ldap settings folder (by default in
 	 * the core bundle but can be changed and save in ic_application_binding)
-	 * 
+	 *
 	 * @return
 	 */
+	@Override
 	public String getPathToLDAPConfigFiles() {
 		if (pathToConfigFiles == null) {
 			//try the application binding first then fall back to the default location
@@ -55,7 +56,8 @@ public class EmbeddedLDAPServerBusinessBean extends IBOServiceBean implements Em
 
 		return pathToConfigFiles;
 	}
-	
+
+	@Override
 	public void setPathToLDAPConfigFiles(String path){
 		if(path!=null && !"".equals(path)){
 			pathToConfigFiles = path;
@@ -67,10 +69,11 @@ public class EmbeddedLDAPServerBusinessBean extends IBOServiceBean implements Em
 	/**
 	 * Starts the ldap server
 	 */
+	@Override
 	public boolean startEmbeddedLDAPServer() {
 		if (server == null) {
 			String pathToConfigFiles = getPathToLDAPConfigFiles();
-			
+
 			try {
 				server = new EmbeddedLDAPServer(pathToConfigFiles);
 				server.start();
@@ -89,6 +92,7 @@ public class EmbeddedLDAPServerBusinessBean extends IBOServiceBean implements Em
 	/**
 	 * Stops the ldap server (10 seconds wait for shutdown)
 	 */
+	@Override
 	public boolean stopEmbeddedLDAPServer() {
 		if (server != null) {
 			server.sendStopSignal();
@@ -100,9 +104,10 @@ public class EmbeddedLDAPServerBusinessBean extends IBOServiceBean implements Em
 	}
 
 	/**
-	 * 
+	 *
 	 * @return Returnes true if the server is running, otherwise false
 	 */
+	@Override
 	public boolean isServerStarted() {
 		if (server != null) {
 			return true;
@@ -111,6 +116,7 @@ public class EmbeddedLDAPServerBusinessBean extends IBOServiceBean implements Em
 		}
 	}
 
+	@Override
 	public synchronized void storeProperties(Properties props,
 			String pathToSettingsFile) throws IOException {
 		FileOutputStream fos = new FileOutputStream(pathToSettingsFile);
@@ -118,17 +124,23 @@ public class EmbeddedLDAPServerBusinessBean extends IBOServiceBean implements Em
 		fos.close();
 	}
 
-	public synchronized Properties loadProperties(String pathToSettingsFile)
-			throws IOException {
+	@Override
+	public synchronized Properties loadProperties(String pathToSettingsFile) throws IOException {
 		FileInputStream fis = null;
 		try {
 			fis = new FileInputStream(FileUtil.getFileFromWorkspace(pathToSettingsFile));
+		} catch (Exception e) {}
+		if (fis == null) {
+			try {
+			new FileInputStream(pathToSettingsFile);
+			} catch (Exception e) {}
+		}
 
+		try {
 			Properties properties = new SortedProperties();
 			properties.load(fis);
 			return properties;
-		}
-		finally {
+		} finally {
 			if (fis != null) {
 				fis.close();
 			}
@@ -136,6 +148,7 @@ public class EmbeddedLDAPServerBusinessBean extends IBOServiceBean implements Em
 	}
 
 
+	@Override
 	public Properties getLDAPSettings() throws IOException {
 
 		if (ldapProps == null) {
@@ -149,6 +162,7 @@ public class EmbeddedLDAPServerBusinessBean extends IBOServiceBean implements Em
 		return ldapProps;
 	}
 
+	@Override
 	public Properties getBackendSettings() throws IOException {
 
 		if (backendProps == null) {
@@ -165,27 +179,29 @@ public class EmbeddedLDAPServerBusinessBean extends IBOServiceBean implements Em
 	/**
 	 * Stores the java ldap settings
 	 * @throws IOException
-	 * 
+	 *
 	 */
+	@Override
 	public void storeLDAPProperties() throws IOException {
 		Properties props = getLDAPSettings();
 		String pathToFile = pathToConfigFiles+JAVA_LDAP_PROPS_FILE_NAME;
-		storeProperties(props,pathToFile);	
+		storeProperties(props,pathToFile);
 	}
-	
+
 	/**
 	 * Stores the backend settings
 	 * @throws IOException
-	 * 
+	 *
 	 */
+	@Override
 	public void storeBackendProperties() throws IOException {
 		Properties props = getBackendSettings();
 		String pathToFile = pathToConfigFiles+BACKENDS_PROPS_FILE_NAME;
-		storeProperties(props,pathToFile);	
+		storeProperties(props,pathToFile);
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Creates the property with supplied default value if it does not exist
 	 * @param properties
@@ -193,6 +209,7 @@ public class EmbeddedLDAPServerBusinessBean extends IBOServiceBean implements Em
 	 * @param defaultValue
 	 * @return
 	 */
+	@Override
 	public String getPropertyAndCreateIfDoesNotExist(Properties properties, String key, String defaultValue) {
 		String value = properties.getProperty(key);
 		if(value==null){
@@ -201,8 +218,9 @@ public class EmbeddedLDAPServerBusinessBean extends IBOServiceBean implements Em
 		}
 		return value;
 	}
-	
-	
+
+
+	@Override
 	public DirectoryString getRootDN(){
 		try {
 			return new DirectoryString(getBackendSettings().getProperty(EmbeddedLDAPServerConstants.PROPS_BACKEND_ZERO_ROOT));

@@ -118,7 +118,7 @@ public class ConnectionData
 	*  	to be set directly.
 	*/
 
-	public ConnectionData() {}
+	public ConnectionData() {};
 
     public void setProtocol(String newProtocol)
     {
@@ -267,7 +267,6 @@ public class ConnectionData
 	*	@return the data object as a string.
 	*/
 
-	@Override
 	public String toString()
 	{
 		return new String("baseDN: " 					+ baseDN +

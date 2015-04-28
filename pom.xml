@@ -8,7 +8,6 @@
   </parent>
   <packaging>jar</packaging>
   <artifactId>com.idega.block.ldap</artifactId>
-  <version>5.0.0-SNAPSHOT</version>
   <name>idegaWeb LDAP Block</name>
   <inceptionYear>2000</inceptionYear>
   <description>LDAP Block adds an embedded LDAP server on top of the Users and groups infrastructure and has replication services and a manager in the developer</description>
