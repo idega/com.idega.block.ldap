@@ -132,13 +132,15 @@ public class EmbeddedLDAPServerBusinessBean extends IBOServiceBean implements Em
 		} catch (Exception e) {}
 		if (fis == null) {
 			try {
-			new FileInputStream(pathToSettingsFile);
+				fis = new FileInputStream(pathToSettingsFile);
 			} catch (Exception e) {}
 		}
 
 		try {
 			Properties properties = new SortedProperties();
-			properties.load(fis);
+			if (fis != null) {
+				properties.load(fis);
+			}
 			return properties;
 		} finally {
 			if (fis != null) {
@@ -146,7 +148,6 @@ public class EmbeddedLDAPServerBusinessBean extends IBOServiceBean implements Em
 			}
 		}
 	}
-
 
 	@Override
 	public Properties getLDAPSettings() throws IOException {

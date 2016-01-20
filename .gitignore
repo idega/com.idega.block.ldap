@@ -6,3 +6,5 @@ target
 target/
 .settings/
 
+
+.classpath
