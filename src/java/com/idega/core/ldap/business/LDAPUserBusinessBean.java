@@ -31,6 +31,7 @@ import com.idega.core.ldap.IWLDAPConstants;
 import com.idega.core.ldap.client.naming.DN;
 import com.idega.data.IDOLookup;
 import com.idega.data.IDOStoreException;
+import com.idega.idegaweb.IWMainApplication;
 import com.idega.user.business.UserBusiness;
 import com.idega.user.data.Group;
 import com.idega.user.data.User;
@@ -308,31 +309,36 @@ public class LDAPUserBusinessBean extends IBOServiceBean implements LDAPUserBusi
 		
 				
 		//the login
-		if(userName!=null){
+		if (userName != null) {
 			try {
-				int userId = ((Integer)user.getPrimaryKey()).intValue();
+				boolean canStore = true;
+				
+				int userId = ((Integer) user.getPrimaryKey()).intValue();
 				LoginTable login = LoginDBHandler.getUserLogin(userId);
-				if(login==null){
+				if (login == null) {
 					//no login create one
 					LoginTableHome home = (LoginTableHome) IDOLookup.getHome(LoginTable.class);
 					login = home.create();
 					login.setUserId(userId);	
+				} else {
+					canStore = IWMainApplication.getDefaultIWMainApplication().getSettings().getBoolean("ldap_sync_change_password", false);
 				}
 				
-				login.setUserLogin(userName);
-				if(userPassword!=null){
-//					remove the encryption e.g. {md5} prefix
-					userPassword = userPassword.substring(userPassword.indexOf("}")+1);
-					login.setUserPasswordInClearText(userPassword);
+				if (canStore) {
+					login.setUserLogin(userName);
+					if (userPassword != null) {
+						userPassword = userPassword.substring(userPassword.indexOf("}")+1);
+						login.setUserPasswordInClearText(userPassword);
+					}
+					login.setLastChanged(IWTimestamp.getTimestampRightNow());
+					login.store();
+				} else {
+					getLogger().warning("Password changing is disabled via LDAP. Did not change password for user name: " + userName);
 				}
-				login.setLastChanged(IWTimestamp.getTimestampRightNow());
-				login.store();
-			}
-			catch (IDOStoreException e) {
+			} catch (IDOStoreException e) {
 				System.out.println("Problem with creating userlogin: " + userName);
 				e.printStackTrace();
-			}
-			catch (EJBException e) {
+			} catch (EJBException e) {
 				e.printStackTrace();
 			}
 		}
