@@ -146,7 +146,7 @@ public interface UserDAO {
 	 * @throws GeneralSecurityException there are problems with TLS/SSL connection.
 	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
 	 */
-	User create(User entity) throws LDAPException, GeneralSecurityException;
+	User create(User entity, String password) throws LDAPException, GeneralSecurityException;
 	
 	/**
 	 * 
@@ -155,7 +155,7 @@ public interface UserDAO {
 	 * @throws GeneralSecurityException there are problems with TLS/SSL connection.
 	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
 	 */
-	User update(User entity) throws LDAPException, GeneralSecurityException;
+	User update(User entity, String password) throws LDAPException, GeneralSecurityException;
 
 	/**
 	 * 
@@ -165,5 +165,5 @@ public interface UserDAO {
 	 * @throws GeneralSecurityException there are problems with TLS/SSL connection.
 	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
 	 */
-	String update(String personalId) throws LDAPException, GeneralSecurityException;
+	String update(String personalId, String password) throws LDAPException, GeneralSecurityException;
 }

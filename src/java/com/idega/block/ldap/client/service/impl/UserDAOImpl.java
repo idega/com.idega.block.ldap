@@ -95,6 +95,7 @@ import org.directwebremoting.annotations.RemoteProxy;
 import org.directwebremoting.spring.SpringCreator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -106,6 +107,7 @@ import com.idega.block.ldap.client.service.ConnectionService;
 import com.idega.block.ldap.client.service.UserDAO;
 import com.idega.core.accesscontrol.data.LoginTable;
 import com.idega.core.accesscontrol.data.LoginTableHome;
+import com.idega.core.accesscontrol.event.LoggedInUserCredentials;
 import com.idega.core.business.DefaultSpringBean;
 import com.idega.core.contact.dao.PhoneDAO;
 import com.idega.core.contact.data.bean.Phone;
@@ -156,7 +158,7 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 					value=UserDAO.JAVASCRIPT_CLASS_NAME)
 		}
 )
-public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
+public class UserDAOImpl extends DefaultSpringBean implements UserDAO, ApplicationListener<LoggedInUserCredentials> {
 
 	@Autowired
 	private ConnectionService connectionService;
@@ -231,20 +233,6 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 		LoginTable login = getLoginObject(user);
 		if (login != null) {
 			return login.getUserLogin();
-		}
-
-		return null;
-	}
-
-	/**
-	 * 
-	 * @param user to get password for, not <code>null</code>
-	 * @return password of user or <code>null</code> on failure
-	 */
-	private String getPassword(User user) {
-		LoginTable login = getLoginObject(user);
-		if (login != null) {
-			return login.getUserPassword();
 		}
 
 		return null;
@@ -354,7 +342,7 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 	 * @see com.idega.block.ldap.client.service.UserDAO#create(com.idega.user.data.bean.User)
 	 */
 	@Override
-	public User create(User entity) throws LDAPException, GeneralSecurityException {
+	public User create(User entity, String password) throws LDAPException, GeneralSecurityException {
 		if (entity != null) {
 			String timeout = getApplicationProperty(
 					ConnectionService.PROPERTY_RESPONSE_TIMEOUT, 
@@ -378,7 +366,6 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 				request.addAttribute(Person.COMMON_NAME, loginName);
 			}
 
-			String password = getPassword(entity);
 			if (!StringUtil.isEmpty(password)) {
 				request.addAttribute(Person.PASSWORD, password);
 			}
@@ -463,7 +450,7 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 	 * @see com.idega.block.ldap.client.service.UserDAO#update(com.idega.user.data.bean.User)
 	 */
 	@Override
-	public User update(User entity) throws LDAPException, GeneralSecurityException {
+	public User update(User entity, String password) throws LDAPException, GeneralSecurityException {
 		if (entity != null) {
 			Collection<User> existingUsers = null;
 			try {
@@ -473,7 +460,7 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 			}
 
 			if (ListUtil.isEmpty(existingUsers)) {
-				return create(entity);
+				return create(entity, password);
 			}
 
 			ArrayList<Modification> modifications = new ArrayList<>();
@@ -496,7 +483,6 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 						loginName));
 			}
 
-			String password = getPassword(entity);
 			if (!StringUtil.isEmpty(password)) {
 				modifications.add(new Modification(
 						ModificationType.REPLACE, 
@@ -618,12 +604,42 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 	 */
 	@RemoteMethod
 	@Override
-	public String update(String personalId) throws LDAPException, GeneralSecurityException {
-		User user = update(getUserDAO().getUser(personalId));
+	public String update(String personalId, String password) throws LDAPException, GeneralSecurityException {
+		/*
+		 * Let's not allow change password here, because it is JavaScript
+		 */
+		User user = update(getUserDAO().getUser(personalId), null);
 		if (user != null) {
 			return user.getDisplayName();
 		}
 
 		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.context.ApplicationListener#onApplicationEvent(org.springframework.context.ApplicationEvent)
+	 */
+	@Override
+	public void onApplicationEvent(LoggedInUserCredentials event) {
+		if (event != null) {
+			LoginTable login = null;
+			try {
+				login = getLoginTableHome().findByLogin(event.getUserName());
+			} catch (FinderException e1) {
+				getLogger().log(Level.WARNING, "Failed to update member, cause of: ", e1);
+			}
+
+			if (login != null) {
+				User user = getUserDAO().getUser(login.getUserId());
+				if (user != null) {
+					try {
+						update(user, event.getPassword());
+					} catch (LDAPException | GeneralSecurityException e) {
+						getLogger().log(Level.WARNING, "Failed to update member, cause of: ", e);
+					}
+				}
+			}
+		}
 	}
 }
