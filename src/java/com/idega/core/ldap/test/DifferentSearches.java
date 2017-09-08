@@ -46,8 +46,6 @@ public static void main(String args[]) throws Exception{
       dc.doCompareSearch();
     else
     	System.out.println("Usage :java DifferentSearches [Lookup |Basic|Filter|ControlAttributes|ControlResults|Compare]");
-
-
 }
 
 

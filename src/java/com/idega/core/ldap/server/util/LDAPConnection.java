@@ -16,6 +16,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 /**
  * @version 	1.0
@@ -24,7 +25,7 @@ import javax.naming.directory.SearchControls;
 public class LDAPConnection {
 
 
-    Hashtable environment = new Hashtable();
+    Hashtable<String, String> environment = new Hashtable<String, String>();
     public LDAPConnection() {
         environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         environment.put("com.sun.jndi.ldap.connect.pool", "true");
@@ -47,7 +48,7 @@ public class LDAPConnection {
         if(ldap.getPassword() != null)
             environment.put(Context.SECURITY_CREDENTIALS, ldap.getPassword());
 
-        Enumeration keys = environment.keys();
+        Enumeration<String> keys = environment.keys();
         while (keys.hasMoreElements()) {
             String key = (String) keys.nextElement();
             System.out.println("Environment[" + key + "] = " + environment.get(key));
@@ -88,7 +89,7 @@ public class LDAPConnection {
 
         cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-        NamingEnumeration searchResults = initDirContext.search("", "(ou=zfd)", cons);
+        NamingEnumeration<SearchResult> searchResults = initDirContext.search("", "(ou=zfd)", cons);
 
         while (searchResults.hasMore()) {
             Binding bd = (Binding) searchResults.next();
@@ -99,48 +100,32 @@ public class LDAPConnection {
             Attributes a = initDirContext.getAttributes(bd.getName());
 
             if (a != null) {
-                NamingEnumeration attrlist = a.getAll();
+                NamingEnumeration<? extends Attribute> attrlist = a.getAll();
                 while (attrlist.hasMore()) {
                     Attribute att = (Attribute) attrlist.next();
                     System.out.println("Attribute: " + att.toString());
                 }
             }
         }
-
     }
 
     public void dump() throws NamingException {
         dump(initDirContext, "");
     }
 
-    public static void dumpNamingEnumeration(NamingEnumeration enumer) throws NamingException {
-
+    public static void dumpNamingEnumeration(NamingEnumeration<Binding> enumer) throws NamingException {
         while (enumer.hasMore()) {
             Binding bd = (Binding) enumer.next();
-            //DirContext sctx = (DirContext) bd.getObject();
             System.out.println("  " + bd.getName() + "  ");
-
         }
-
     }
 
     public static void dump(InitialDirContext dctx, String indent) throws NamingException {
-        NamingEnumeration bindings = dctx.listBindings("");
+        NamingEnumeration<Binding> bindings = dctx.listBindings("");
 
         while (bindings.hasMore()) {
             Binding bd = (Binding) bindings.next();
-            //DirContext sctx = (DirContext) bd.getObject();
             System.out.println(indent + "<B>" + bd.getName() + "</B>");
-
-            //Attributes a = sctx.getAttributes("");
-            //NamingEnumeration attrlist = a.getAll();
-            //while (attrlist.hasMore()) {
-            //Attribute att = (Attribute) attrlist.next();
-            //System.out.println(indent + att.toString());
-            //}
-            //dumpDirContext(sctx, indent + "&nbsp;&nbsp;");
         }
-
     }
-
 }
