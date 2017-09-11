@@ -90,13 +90,9 @@ import java.util.logging.Level;
 
 import javax.ejb.FinderException;
 
-import org.directwebremoting.annotations.RemoteMethod;
-import org.directwebremoting.annotations.RemoteProxy;
-import org.directwebremoting.spring.SpringCreator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -141,27 +137,13 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
  */
 @Service(UserDAO.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-@EnableAspectJAutoProxy(proxyTargetClass=true)
-
-/*
- * DWR
- */
-@RemoteProxy(
-		name=UserDAO.JAVASCRIPT_CLASS_NAME,
-		creator=SpringCreator.class, 
-		creatorParams={
-			@org.directwebremoting.annotations.Param(
-					name="beanName", 
-					value=UserDAO.BEAN_NAME),
-			@org.directwebremoting.annotations.Param(
-					name="javascript", 
-					value=UserDAO.JAVASCRIPT_CLASS_NAME)
-		}
-)
 public class UserDAOImpl extends DefaultSpringBean implements UserDAO, ApplicationListener<LoggedInUserCredentials> {
 
 	@Autowired
 	private ConnectionService connectionService;
+
+	@Autowired
+	private GroupDAO activeDirectoryGroupDAO;
 
 	@Autowired
 	private com.idega.user.dao.UserDAO userDAO;
@@ -602,7 +584,6 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO, Applicati
 	 * (non-Javadoc)
 	 * @see com.idega.block.ldap.client.service.UserDAO#update(java.lang.String)
 	 */
-	@RemoteMethod
 	@Override
 	public String update(String personalId, String password) throws LDAPException, GeneralSecurityException {
 		/*
