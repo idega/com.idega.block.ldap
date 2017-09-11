@@ -100,6 +100,7 @@ import com.idega.block.ldap.client.constants.InternetOrganizationalPerson;
 import com.idega.block.ldap.client.constants.OrganizationalPerson;
 import com.idega.block.ldap.client.constants.Person;
 import com.idega.block.ldap.client.service.ConnectionService;
+import com.idega.block.ldap.client.service.GroupDAO;
 import com.idega.block.ldap.client.service.UserDAO;
 import com.idega.core.accesscontrol.data.LoginTable;
 import com.idega.core.accesscontrol.data.LoginTableHome;
@@ -113,6 +114,7 @@ import com.idega.core.location.data.bean.Address;
 import com.idega.core.location.data.bean.AddressType;
 import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
+import com.idega.user.data.bean.Group;
 import com.idega.user.data.bean.User;
 import com.idega.util.CoreConstants;
 import com.idega.util.ListUtil;
@@ -153,6 +155,14 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO, Applicati
 
 	@Autowired
 	private AddressDAO addressDAO;
+
+	private GroupDAO getActiveDirectoryGroupDAO() {
+		if (this.activeDirectoryGroupDAO == null) {
+			ELUtil.getInstance().autowire(this);
+		}
+
+		return this.activeDirectoryGroupDAO;
+	}
 
 	private AddressDAO getAddressDAO() {
 		if (this.addressDAO == null) {
@@ -433,7 +443,7 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO, Applicati
 	 */
 	@Override
 	public User update(User entity, String password) throws LDAPException, GeneralSecurityException {
-		if (entity != null) {
+		if (entity != null) {	
 			Collection<User> existingUsers = null;
 			try {
 				existingUsers = findByUUID(entity.getUniqueId());				
@@ -442,7 +452,13 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO, Applicati
 			}
 
 			if (ListUtil.isEmpty(existingUsers)) {
-				return create(entity, password);
+				entity = create(entity, password);
+				if (entity != null) {
+					List<Group> groups = getActiveDirectoryGroupDAO().update(entity.getUserRepresentative());
+					if (!ListUtil.isEmpty(groups)) {
+						return entity;
+					}
+				}
 			}
 
 			ArrayList<Modification> modifications = new ArrayList<>();
@@ -574,6 +590,13 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO, Applicati
 
 			if (response.getResultCode().intValue() != ResultCode.SUCCESS_INT_VALUE) {
 				throw new RuntimeException(response.getResultString());
+			}
+
+			if (entity != null) {
+				List<Group> groups = getActiveDirectoryGroupDAO().update(entity.getUserRepresentative());
+				if (!ListUtil.isEmpty(groups)) {
+					return entity;
+				}
 			}
 		}
 
