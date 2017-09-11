@@ -90,6 +90,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+
+import javax.ejb.FinderException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -100,6 +103,9 @@ import com.idega.block.ldap.client.constants.OrganizationalUnit;
 import com.idega.block.ldap.client.service.ConnectionService;
 import com.idega.block.ldap.client.service.GroupDAO;
 import com.idega.core.business.DefaultSpringBean;
+import com.idega.data.IDOLookup;
+import com.idega.data.IDOLookupException;
+import com.idega.user.data.GroupHome;
 import com.idega.user.data.bean.Group;
 import com.idega.user.data.bean.GroupType;
 import com.idega.util.CoreConstants;
@@ -147,6 +153,16 @@ public class GroupDAOImpl extends DefaultSpringBean implements GroupDAO {
 		}
 
 		return this.groupDAO;
+	}
+
+	private GroupHome getGroupHome() {
+		try {
+			return (GroupHome) IDOLookup.getHome(com.idega.user.data.Group.class);
+		} catch (IDOLookupException e) {
+			getLogger().log(Level.WARNING, "Failed to get " + GroupHome.class + " cause of: ", e);
+		}
+
+		return null;
 	}
 
 	private String getGroupName(Group group) {
@@ -249,11 +265,13 @@ public class GroupDAOImpl extends DefaultSpringBean implements GroupDAO {
 		if (results != null) {
 			List<SearchResultEntry> entries = results.getSearchEntries();
 			for (SearchResultEntry entry : entries) {
-				Group entity = getGroupDAO().findByGroupTypeAndName(
-						getGroupDAO().findGroupType(entry.getAttributeValue(OrganizationalUnit.BUSINESS_CATEGORY)), 
-						entry.getAttributeValue(OrganizationalUnit.ORGANIZATIONAL_UNIT_NAME));
+				com.idega.user.data.Group ejbGroup = null;
+				try {
+					ejbGroup = getGroupHome().findGroupByUniqueId(entry.getAttributeValue(OrganizationalUnit.DESCRIPTION));
+				} catch (FinderException e) {}
+
+				Group entity = getGroupDAO().findGroup((Integer) ejbGroup.getPrimaryKey());
 				if (entity != null) {
-					entity.setDescription(entry.getAttributeValue(OrganizationalUnit.DESCRIPTION));
 					entities.add(entity);
 				}
 			}
@@ -287,8 +305,8 @@ public class GroupDAOImpl extends DefaultSpringBean implements GroupDAO {
 			request.addAttribute("objectClass", OrganizationalUnit.OBJECT_CLASS);
 			request.addAttribute(OrganizationalUnit.ORGANIZATIONAL_UNIT_NAME, getGroupName(entity));
 
-			if (!StringUtil.isEmpty(entity.getDescription())) {
-				request.addAttribute(OrganizationalUnit.DESCRIPTION, entity.getDescription());
+			if (!StringUtil.isEmpty(entity.getUniqueId())) {
+				request.addAttribute(OrganizationalUnit.DESCRIPTION, entity.getUniqueId());
 			}
 
 			GroupType type = entity.getGroupType();
@@ -344,11 +362,11 @@ public class GroupDAOImpl extends DefaultSpringBean implements GroupDAO {
 						groupName));
 			}
 
-			if (!StringUtil.isEmpty(entity.getDescription())) {
+			if (!StringUtil.isEmpty(entity.getUniqueId())) {
 				modifications.add(new Modification(
 						ModificationType.REPLACE, 
 						OrganizationalUnit.DESCRIPTION, 
-						entity.getDescription()));
+						entity.getUniqueId()));
 			}
 
 			GroupType type = entity.getGroupType();
@@ -359,7 +377,7 @@ public class GroupDAOImpl extends DefaultSpringBean implements GroupDAO {
 						type.getGroupType()));
 			}
 
-			ModifyRequest modificationRequest = new ModifyRequest(distinguishedName);
+			ModifyRequest modificationRequest = new ModifyRequest(distinguishedName, modifications);
 			LDAPConnection connection = getConnectionService().getConnection();
 			LDAPResult response = connection.modify(modificationRequest);
 			connection.close();
