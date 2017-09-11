@@ -85,6 +85,7 @@ package com.idega.block.ldap.client.service;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 
+import com.idega.block.ldap.client.constants.InternetOrganizationalPerson;
 import com.idega.user.data.bean.User;
 import com.idega.util.CoreConstants;
 import com.unboundid.ldap.sdk.Filter;
@@ -123,7 +124,7 @@ public interface UserDAO {
 	 */
 	static final String PROPERTY_USERS_DN = "ldap.dn.users";
 	
-	static final Filter USER_SEARCH_FILTER = Filter.createEqualityFilter("objectClass", "person");
+	static final Filter USER_SEARCH_FILTER = Filter.createEqualityFilter("objectClass", InternetOrganizationalPerson.OBJECT_CLASS);
 	
 	/**
 	 * 
