@@ -97,6 +97,7 @@ import com.idega.block.ldap.client.service.ConnectionService;
 import com.idega.core.business.DefaultSpringBean;
 import com.idega.util.CoreConstants;
 import com.idega.util.StringUtil;
+import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
@@ -171,17 +172,12 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 		return new LDAPConnection(getSocketFactory(), getConnectionOptions(), domain, Integer.valueOf(port), adminDN, adminDNPassword);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.idega.block.ldap.client.service.ConnectionService#findBy(com.unboundid.ldap.sdk.Filter, java.lang.String[])
-	 */
 	@Override
-	public SearchResult findByDN(Filter filter, String commaSeparatedDN) throws LDAPSearchException, LDAPException, GeneralSecurityException {
+	public SearchResult findByDN(Filter filter, DN distinguishedName) throws LDAPSearchException, LDAPException, GeneralSecurityException {
 		String timeout = getApplicationProperty(PROPERTY_RESPONSE_TIMEOUT, DEFAULT_RESPONSE_TIMEOUT.toString());
 		String size = getApplicationProperty(PROPERTY_RESPONSE_SIZE_LIMIT, DEFAULT_RESPONSE_SIZE_LIMIT.toString());
-		String baseDN = getApplicationProperty(PROPERTY_BASE_DN, DEFAULT_BASE_DN);
 
-		SearchRequest request = new SearchRequest(commaSeparatedDN + "," + baseDN, SearchScope.SUB, filter);
+		SearchRequest request = new SearchRequest(distinguishedName.toString(), SearchScope.SUB, filter);
 		request.setSizeLimit(Integer.valueOf(size));
 		request.setTimeLimitSeconds(Integer.valueOf(timeout));
 		
@@ -190,6 +186,20 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 		connection.close();
 
 		return response;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.idega.block.ldap.client.service.ConnectionService#findBy(com.unboundid.ldap.sdk.Filter, java.lang.String[])
+	 */
+	@Override
+	public SearchResult findByDN(Filter filter, String commaSeparatedDN) throws LDAPSearchException, LDAPException, GeneralSecurityException {
+		String baseDN = getApplicationProperty(PROPERTY_BASE_DN, DEFAULT_BASE_DN);
+		if (!StringUtil.isEmpty(baseDN)) {
+			return findByDN(filter, new DN(commaSeparatedDN + "," + baseDN));
+		}
+
+		return null;
 	}
 
 	/*

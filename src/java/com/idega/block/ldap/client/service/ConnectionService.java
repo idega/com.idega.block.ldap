@@ -86,6 +86,7 @@ import java.security.GeneralSecurityException;
 
 import com.idega.user.data.bean.Group;
 import com.idega.user.data.bean.User;
+import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -169,16 +170,6 @@ public interface ConnectionService {
 	static final String PROPERTY_BASE_DN = "ldap.dn.base";
 
 	/**
-	 * Default groups directory DN 
-	 */
-	static final String DEFAULT_GROUPS_DN = "ou=Groups," + DEFAULT_BASE_DN;
-
-	/**
-	 * Application property for setting base groups directory of LDAP server
-	 */
-	static final String PROPERTY_GROUPS_DN = "ldap.dn.groups";
-
-	/**
 	 * Default admin directory DN 
 	 */
 	static final String DEFAULT_ADMIN_DN = "cn=ldapadm," + DEFAULT_BASE_DN;
@@ -198,8 +189,6 @@ public interface ConnectionService {
 	 */
 	static final String PROPERTY_ADMIN_DN_PASSWORD = "ldap.dn.admin.pass";
 	
-	static final Filter GROUP_SEARCH_FILTER = Filter.createEqualityFilter("objectClass", "group");
-	
 	/**
 	 * 
 	 * @return connection object to LDAP server with properties configured on application
@@ -208,6 +197,23 @@ public interface ConnectionService {
 	 */
 	LDAPConnection getConnection() throws GeneralSecurityException, LDAPException;
 
+	/**
+	 * 
+	 * @param filter is one of:
+	 * <li>{@link Constants#USER_SEARCH_FILTER}</li>
+	 * <li>{@link Constants#GROUP_SEARCH_FILTER}</li>
+	 * @param distinguishedName is comma separated standard LDAP strings like "cn=Victor"
+	 * @return results or <code>null</code> on failure;
+	 * @throws LDAPSearchException if the search does not complete successfully, or if a problem is encountered while 
+	 * sending the request or reading the response. If one or more entries or references were returned before the 
+	 * failure was encountered, then the LDAPSearchException object may be examined to obtain information about those 
+	 * entries and/or references.
+	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
+	 * @throws GeneralSecurityException there are problems with TLS/SSL connection.
+	 */
+	SearchResult findByDN(Filter filter, DN distinguishedName)
+			throws LDAPSearchException, LDAPException, GeneralSecurityException;
+	
 	/**
 	 * 
 	 * @param filter is one of:
