@@ -167,7 +167,6 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 		String port = getApplicationProperty(PROPERTY_PORT, DEFAULT_PORT);
 		String adminDN = getApplicationProperty(PROPERTY_ADMIN_DN, DEFAULT_ADMIN_DN);
 		String adminDNPassword = getApplicationProperty(PROPERTY_ADMIN_DN_PASSWORD, DEFAULT_ADMIN_DN_PASSWORD);
-		adminDNPassword = "r0undp3gs";
 
 		return new LDAPConnection(getSocketFactory(), getConnectionOptions(), domain, Integer.valueOf(port), adminDN, adminDNPassword);
 	}
