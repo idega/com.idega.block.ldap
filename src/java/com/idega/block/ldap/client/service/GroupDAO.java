@@ -145,4 +145,15 @@ public interface GroupDAO {
 	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
 	 */
 	TreeMap<DN, Group> getDistinguishedNames(Group group) throws LDAPException;
+
+	/**
+	 * 
+	 * <p>Creates or updates entity</p>
+	 * @param distinguishedName of entity, not <code>null</code>
+	 * @param entity itself to write, not <code>null</code>
+	 * @return created entity or <code>null</code> on failure
+	 * @throws GeneralSecurityException there are problems with TLS/SSL connection.
+	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
+	 */
+	Group update(DN distinguishedName, Group entity) throws LDAPException, GeneralSecurityException;
 }

@@ -327,17 +327,12 @@ public class GroupDAOImpl extends DefaultSpringBean implements GroupDAO {
 		return entity;
 	}
 
-
-	/**
-	 * 
-	 * <p>Creates or updates entity</p>
-	 * @param distinguishedName of entity, not <code>null</code>
-	 * @param entity itself to write, not <code>null</code>
-	 * @return created entity or <code>null</code> on failure
-	 * @throws GeneralSecurityException there are problems with TLS/SSL connection.
-	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
+	/*
+	 * (non-Javadoc)
+	 * @see com.idega.block.ldap.client.service.GroupDAO#update(com.unboundid.ldap.sdk.DN, com.idega.user.data.bean.Group)
 	 */
-	private Group update(DN distinguishedName, Group entity) throws LDAPException, GeneralSecurityException {
+	@Override
+	public Group update(DN distinguishedName, Group entity) throws LDAPException, GeneralSecurityException {
 		if (entity != null) {
 			Collection<Group> existingEntities = null;
 			try {
