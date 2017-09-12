@@ -280,7 +280,7 @@ public class GroupUserDAOImpl extends DefaultSpringBean implements GroupUserDAO,
 			try {
 				existingRelations = getConnectionService().findByDN(
 							GROUP_SEARCH_FILTER, 
-							relationDistinguishedName.toString());
+							new DN(relationDistinguishedName.toString()));
 			} catch (LDAPSearchException e) {
 				getLogger().log(Level.WARNING, "Entity by path not found: " + relationDistinguishedName.toString());
 			}
