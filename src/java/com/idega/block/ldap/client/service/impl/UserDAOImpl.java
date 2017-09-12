@@ -3,82 +3,82 @@
  *
  * Idega Software hf. Source Code Licence Agreement x
  *
- * This agreement, made this 10th of February 2006 by and between 
- * Idega Software hf., a business formed and operating under laws 
- * of Iceland, having its principal place of business in Reykjavik, 
- * Iceland, hereinafter after referred to as "Manufacturer" and Agura 
+ * This agreement, made this 10th of February 2006 by and between
+ * Idega Software hf., a business formed and operating under laws
+ * of Iceland, having its principal place of business in Reykjavik,
+ * Iceland, hereinafter after referred to as "Manufacturer" and Agura
  * IT hereinafter referred to as "Licensee".
- * 1.  License Grant: Upon completion of this agreement, the source 
- *     code that may be made available according to the documentation for 
- *     a particular software product (Software) from Manufacturer 
- *     (Source Code) shall be provided to Licensee, provided that 
- *     (1) funds have been received for payment of the License for Software and 
- *     (2) the appropriate License has been purchased as stated in the 
- *     documentation for Software. As used in this License Agreement, 
- *     Licensee shall also mean the individual using or installing 
- *     the source code together with any individual or entity, including 
- *     but not limited to your employer, on whose behalf you are acting 
- *     in using or installing the Source Code. By completing this agreement, 
- *     Licensee agrees to be bound by the terms and conditions of this Source 
- *     Code License Agreement. This Source Code License Agreement shall 
- *     be an extension of the Software License Agreement for the associated 
- *     product. No additional amendment or modification shall be made 
- *     to this Agreement except in writing signed by Licensee and 
+ * 1.  License Grant: Upon completion of this agreement, the source
+ *     code that may be made available according to the documentation for
+ *     a particular software product (Software) from Manufacturer
+ *     (Source Code) shall be provided to Licensee, provided that
+ *     (1) funds have been received for payment of the License for Software and
+ *     (2) the appropriate License has been purchased as stated in the
+ *     documentation for Software. As used in this License Agreement,
+ *     Licensee shall also mean the individual using or installing
+ *     the source code together with any individual or entity, including
+ *     but not limited to your employer, on whose behalf you are acting
+ *     in using or installing the Source Code. By completing this agreement,
+ *     Licensee agrees to be bound by the terms and conditions of this Source
+ *     Code License Agreement. This Source Code License Agreement shall
+ *     be an extension of the Software License Agreement for the associated
+ *     product. No additional amendment or modification shall be made
+ *     to this Agreement except in writing signed by Licensee and
  *     Manufacturer. This Agreement is effective indefinitely and once
- *     completed, cannot be terminated. Manufacturer hereby grants to 
- *     Licensee a non-transferable, worldwide license during the term of 
- *     this Agreement to use the Source Code for the associated product 
- *     purchased. In the event the Software License Agreement to the 
- *     associated product is terminated; (1) Licensee's rights to use 
- *     the Source Code are revoked and (2) Licensee shall destroy all 
- *     copies of the Source Code including any Source Code used in 
+ *     completed, cannot be terminated. Manufacturer hereby grants to
+ *     Licensee a non-transferable, worldwide license during the term of
+ *     this Agreement to use the Source Code for the associated product
+ *     purchased. In the event the Software License Agreement to the
+ *     associated product is terminated; (1) Licensee's rights to use
+ *     the Source Code are revoked and (2) Licensee shall destroy all
+ *     copies of the Source Code including any Source Code used in
  *     Licensee's applications.
  * 2.  License Limitations
- *     2.1 Licensee may not resell, rent, lease or distribute the 
- *         Source Code alone, it shall only be distributed as a 
+ *     2.1 Licensee may not resell, rent, lease or distribute the
+ *         Source Code alone, it shall only be distributed as a
  *         compiled component of an application.
- *     2.2 Licensee shall protect and keep secure all Source Code 
- *         provided by this this Source Code License Agreement. 
- *         All Source Code provided by this Agreement that is used 
+ *     2.2 Licensee shall protect and keep secure all Source Code
+ *         provided by this this Source Code License Agreement.
+ *         All Source Code provided by this Agreement that is used
  *         with an application that is distributed or accessible outside
- *         Licensee's organization (including use from the Internet), 
- *         must be protected to the extent that it cannot be easily 
+ *         Licensee's organization (including use from the Internet),
+ *         must be protected to the extent that it cannot be easily
  *         extracted or decompiled.
- *     2.3 The Licensee shall not resell, rent, lease or distribute 
- *         the products created from the Source Code in any way that 
+ *     2.3 The Licensee shall not resell, rent, lease or distribute
+ *         the products created from the Source Code in any way that
  *         would compete with Idega Software.
- *     2.4 Manufacturer's copyright notices may not be removed from 
+ *     2.4 Manufacturer's copyright notices may not be removed from
  *         the Source Code.
- *     2.5 All modifications on the source code by Licencee must 
+ *     2.5 All modifications on the source code by Licencee must
  *         be submitted to or provided to Manufacturer.
- * 3.  Copyright: Manufacturer's source code is copyrighted and contains 
- *     proprietary information. Licensee shall not distribute or 
- *     reveal the Source Code to anyone other than the software 
- *     developers of Licensee's organization. Licensee may be held 
- *     legally responsible for any infringement of intellectual property 
- *     rights that is caused or encouraged by Licensee's failure to abide 
- *     by the terms of this Agreement. Licensee may make copies of the 
- *     Source Code provided the copyright and trademark notices are 
- *     reproduced in their entirety on the copy. Manufacturer reserves 
+ * 3.  Copyright: Manufacturer's source code is copyrighted and contains
+ *     proprietary information. Licensee shall not distribute or
+ *     reveal the Source Code to anyone other than the software
+ *     developers of Licensee's organization. Licensee may be held
+ *     legally responsible for any infringement of intellectual property
+ *     rights that is caused or encouraged by Licensee's failure to abide
+ *     by the terms of this Agreement. Licensee may make copies of the
+ *     Source Code provided the copyright and trademark notices are
+ *     reproduced in their entirety on the copy. Manufacturer reserves
  *     all rights not specifically granted to Licensee.
  *
- * 4.  Warranty & Risks: Although efforts have been made to assure that the 
- *     Source Code is correct, reliable, date compliant, and technically 
- *     accurate, the Source Code is licensed to Licensee as is and without 
- *     warranties as to performance of merchantability, fitness for a 
- *     particular purpose or use, or any other warranties whether 
- *     expressed or implied. Licensee's organization and all users 
- *     of the source code assume all risks when using it. The manufacturers, 
- *     distributors and resellers of the Source Code shall not be liable 
- *     for any consequential, incidental, punitive or special damages 
- *     arising out of the use of or inability to use the source code or 
- *     the provision of or failure to provide support services, even if we 
- *     have been advised of the possibility of such damages. In any case, 
- *     the entire liability under any provision of this agreement shall be 
- *     limited to the greater of the amount actually paid by Licensee for the 
- *     Software or 5.00 USD. No returns will be provided for the associated 
- *     License that was purchased to become eligible to receive the Source 
- *     Code after Licensee receives the source code. 
+ * 4.  Warranty & Risks: Although efforts have been made to assure that the
+ *     Source Code is correct, reliable, date compliant, and technically
+ *     accurate, the Source Code is licensed to Licensee as is and without
+ *     warranties as to performance of merchantability, fitness for a
+ *     particular purpose or use, or any other warranties whether
+ *     expressed or implied. Licensee's organization and all users
+ *     of the source code assume all risks when using it. The manufacturers,
+ *     distributors and resellers of the Source Code shall not be liable
+ *     for any consequential, incidental, punitive or special damages
+ *     arising out of the use of or inability to use the source code or
+ *     the provision of or failure to provide support services, even if we
+ *     have been advised of the possibility of such damages. In any case,
+ *     the entire liability under any provision of this agreement shall be
+ *     limited to the greater of the amount actually paid by Licensee for the
+ *     Software or 5.00 USD. No returns will be provided for the associated
+ *     License that was purchased to become eligible to receive the Source
+ *     Code after Licensee receives the source code.
  */
 package com.idega.block.ldap.client.service.impl;
 
@@ -92,6 +92,7 @@ import javax.ejb.FinderException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -102,6 +103,7 @@ import com.idega.block.ldap.client.service.ConnectionService;
 import com.idega.block.ldap.client.service.UserDAO;
 import com.idega.core.accesscontrol.data.LoginTable;
 import com.idega.core.accesscontrol.data.LoginTableHome;
+import com.idega.core.accesscontrol.event.LoggedInUserCredentials;
 import com.idega.core.business.DefaultSpringBean;
 import com.idega.core.contact.dao.PhoneDAO;
 import com.idega.core.contact.data.bean.Phone;
@@ -135,7 +137,7 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
  */
 @Service(UserDAO.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
+public class UserDAOImpl extends DefaultSpringBean implements UserDAO, ApplicationListener<LoggedInUserCredentials> {
 
 	@Autowired
 	private ConnectionService connectionService;
@@ -202,7 +204,7 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param user to get login name for, not <code>null</code>
 	 * @return user login name or <code>null</code> on failure
 	 */
@@ -216,7 +218,7 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param user to get phone number for, not <code>null</code>
 	 * @return {@link Phone#getNumber()} of {@link User} home phone or <code>null</code> on failure
 	 */
@@ -234,7 +236,7 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param user to get phone number for, not <code>null</code>
 	 * @return {@link Phone#getNumber()} of {@link User} home phone or <code>null</code> on failure
 	 */
@@ -252,7 +254,7 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param user to get {@link Address} for, not <code>null</code>
 	 * @return the {@link AddressType#MAIN_ADDRESS_TYPE} {@link Address} of {@link User} or <code>null</code> on failure;
 	 */
@@ -267,9 +269,11 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.idega.block.ldap.client.service.UserDAO#getDistinguishedName(java.lang.String)
+	/**
+	 *
+	 * @param uuid is {@link User#getUniqueId()}, no UUID added if <code>null</code>
+	 * @return distinguished name object or <code>null</code> on failure
+	 * @throws LDAPException if the provided string cannot be parsed as a valid DN.
 	 */
 	@Override
 	public DN getDistinguishedName(String uuid) throws LDAPException {
@@ -288,7 +292,7 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 
 		return null;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * @see com.idega.block.ldap.client.service.UserDAO#findByUUID(java.lang.String)
@@ -296,7 +300,7 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 	@Override
 	public Collection<User> findByUUID(String uuid) throws LDAPSearchException, LDAPException, GeneralSecurityException {
 		ArrayList<User> entities = new ArrayList<>();
-		
+
 		String organizationalUnit = getApplicationProperty(PROPERTY_USERS_OU, DEFAULT_USERS_OU);
 
 		SearchResult results = getConnectionService().findByUUID(USER_SEARCH_FILTER, organizationalUnit, uuid);
@@ -325,7 +329,7 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 	public User create(User entity, String password) throws LDAPException, GeneralSecurityException {
 		if (entity != null) {
 			String timeout = getApplicationProperty(
-					ConnectionService.PROPERTY_RESPONSE_TIMEOUT, 
+					ConnectionService.PROPERTY_RESPONSE_TIMEOUT,
 					ConnectionService.DEFAULT_RESPONSE_TIMEOUT.toString());
 
 			AddRequest request = new AddRequest(getDistinguishedName(entity.getUniqueId()));
@@ -363,12 +367,12 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 			 * Organizational Person object information
 			 */
 			request.addAttribute("objectClass", OrganizationalPerson.OBJECT_CLASS);
-			
+
 			String faxNumber = getFAXNumber(entity);
 			if (!StringUtil.isEmpty(faxNumber)) {
 				request.addAttribute(OrganizationalPerson.FAX_NUMBER, faxNumber);
 			}
-		
+
 			Address address = getAddress(entity);
 			if (address != null) {
 				if (!StringUtil.isEmpty(address.getAddress())) {
@@ -378,7 +382,7 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 				if (!StringUtil.isEmpty(address.getCity())) {
 					request.addAttribute(OrganizationalPerson.LOCALE_NAME, address.getCity());
 				}
-				
+
 				if (!StringUtil.isEmpty(address.getPostalBox())) {
 					request.addAttribute(OrganizationalPerson.POST_OFFICE_BOX, address.getPostalBox());
 				}
@@ -431,10 +435,10 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 	 */
 	@Override
 	public User update(User entity, String password) throws LDAPException, GeneralSecurityException {
-		if (entity != null) {	
+		if (entity != null) {
 			Collection<User> existingUsers = null;
 			try {
-				existingUsers = findByUUID(entity.getUniqueId());				
+				existingUsers = findByUUID(entity.getUniqueId());
 			} catch (LDAPSearchException e) {
 				getLogger().warning("User not found in LDAP repository, cause of: " + e.getMessage());
 			}
@@ -450,79 +454,79 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 			 */
 			if (!StringUtil.isEmpty(entity.getLastName())) {
 				modifications.add(new Modification(
-						ModificationType.REPLACE, 
-						Person.LAST_NAME, 
+						ModificationType.REPLACE,
+						Person.LAST_NAME,
 						entity.getLastName()));
 			}
 
 			String loginName = getLoginName(entity);
 			if (!StringUtil.isEmpty(loginName)) {
 				modifications.add(new Modification(
-						ModificationType.REPLACE, 
-						Person.COMMON_NAME, 
+						ModificationType.REPLACE,
+						Person.COMMON_NAME,
 						loginName));
 			}
 
 			if (!StringUtil.isEmpty(password)) {
 				modifications.add(new Modification(
-						ModificationType.REPLACE, 
-						Person.PASSWORD, 
+						ModificationType.REPLACE,
+						Person.PASSWORD,
 						password));
 			}
 
 			String phoneNumber = getPhoneNumber(entity);
 			if (!StringUtil.isEmpty(phoneNumber)) {
 				modifications.add(new Modification(
-						ModificationType.REPLACE, 
-						Person.PHONE_NUMBER, 
+						ModificationType.REPLACE,
+						Person.PHONE_NUMBER,
 						phoneNumber));
 			}
 
 			if (!StringUtil.isEmpty(entity.getDescription())) {
 				modifications.add(new Modification(
-						ModificationType.REPLACE, 
-						Person.DESCRIPTION, 
+						ModificationType.REPLACE,
+						Person.DESCRIPTION,
 						entity.getDescription()));
 			}
-			
+
 			/*
 			 * Organizational Person object information
 			 */
 			String faxNumber = getFAXNumber(entity);
 			if (!StringUtil.isEmpty(faxNumber)) {
 				modifications.add(new Modification(
-						ModificationType.REPLACE, 
-						OrganizationalPerson.FAX_NUMBER, 
+						ModificationType.REPLACE,
+						OrganizationalPerson.FAX_NUMBER,
 						faxNumber));
 			}
-		
+
 			Address address = getAddress(entity);
 			if (address != null) {
 				if (!StringUtil.isEmpty(address.getAddress())) {
 					modifications.add(new Modification(
-							ModificationType.REPLACE, 
-							OrganizationalPerson.ADDRESS, 
+							ModificationType.REPLACE,
+							OrganizationalPerson.ADDRESS,
 							address.getAddress()));
 				}
 
 				if (!StringUtil.isEmpty(address.getCity())) {
 					modifications.add(new Modification(
-							ModificationType.REPLACE, 
-							OrganizationalPerson.LOCALE_NAME, 
+							ModificationType.REPLACE,
+							OrganizationalPerson.LOCALE_NAME,
 							address.getCity()));
 				}
-				
+
 				if (!StringUtil.isEmpty(address.getPostalBox())) {
 					modifications.add(new Modification(
-							ModificationType.REPLACE, 
-							OrganizationalPerson.POST_OFFICE_BOX, 
+							ModificationType.REPLACE,
+							OrganizationalPerson.POST_OFFICE_BOX,
 							address.getPostalBox()));
 				}
 
 				if (!StringUtil.isEmpty(address.getStreetAddress())) {
 					modifications.add(new Modification(
-							ModificationType.REPLACE, 
-							OrganizationalPerson.STREET, 
+							ModificationType.REPLACE,
+							OrganizationalPerson.STREET,
 							address.getStreetAddress()));
 				}
 			}
@@ -532,36 +536,36 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 			 */
 			if (!StringUtil.isEmpty(entity.getDisplayName())) {
 				modifications.add(new Modification(
-						ModificationType.REPLACE, 
-						InternetOrganizationalPerson.DISPLAY_NAME, 
+						ModificationType.REPLACE,
+						InternetOrganizationalPerson.DISPLAY_NAME,
 						entity.getDisplayName()));
 			}
 
 			if (!StringUtil.isEmpty(entity.getEmailAddress())) {
 				modifications.add(new Modification(
-						ModificationType.REPLACE, 
-						InternetOrganizationalPerson.E_MAIL, 
+						ModificationType.REPLACE,
+						InternetOrganizationalPerson.E_MAIL,
 						entity.getEmailAddress()));
 			}
 
 			if (!StringUtil.isEmpty(entity.getFirstName())) {
 				modifications.add(new Modification(
-						ModificationType.REPLACE, 
-						InternetOrganizationalPerson.FIRST_NAME, 
+						ModificationType.REPLACE,
+						InternetOrganizationalPerson.FIRST_NAME,
 						entity.getFirstName()));
 			}
 
 			if (!StringUtil.isEmpty(phoneNumber)) {
 				modifications.add(new Modification(
-						ModificationType.REPLACE, 
-						InternetOrganizationalPerson.HOME_PHONE, 
+						ModificationType.REPLACE,
+						InternetOrganizationalPerson.HOME_PHONE,
 						phoneNumber));
 			}
 
 			if (!StringUtil.isEmpty(entity.getUniqueId())) {
 				modifications.add(new Modification(
-						ModificationType.REPLACE, 
-						InternetOrganizationalPerson.USER_ID, 
+						ModificationType.REPLACE,
+						InternetOrganizationalPerson.USER_ID,
 						entity.getUniqueId()));
 			}
 
@@ -594,4 +598,39 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 
 		return null;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.context.ApplicationListener#onApplicationEvent(org.springframework.context.ApplicationEvent)
+	 */
+	@Override
+	public void onApplicationEvent(LoggedInUserCredentials event) {
+		if (event == null || !getSettings().getBoolean("ldap.auto_sync_enabled", false)) {
+			return;
+		}
+
+		LoginTable login = null;
+		try {
+			login = getLoginTableHome().findByLogin(event.getUserName());
+		} catch (FinderException e) {
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Failed to update member: " + event, e);
+		}
+
+		if (login == null) {
+			return;
+		}
+
+		User user = getUserDAO().getUser(login.getUserId());
+		if (user == null) {
+			return;
+		}
+
+		try {
+			update(user, event.getPassword());
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Failed to update member: " + event, e);
+		}
+	}
+
 }
