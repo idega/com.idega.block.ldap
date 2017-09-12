@@ -281,6 +281,57 @@ public class GroupDAOImpl extends DefaultSpringBean implements GroupDAO {
 		return entities;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.idega.block.ldap.client.service.GroupDAO#initialize()
+	 */
+	@Override
+	public void initialize() throws LDAPException, GeneralSecurityException {
+		String initializationValue = getApplicationProperty(PROPERTY_GROUPS_OU_INITIALIZED);
+		if (Boolean.TRUE.toString().equals(initializationValue)) {
+			return;
+		}
+
+		String domainDN = getApplicationProperty(ConnectionService.PROPERTY_DOMAIN_DN);
+		String ou = getApplicationProperty(PROPERTY_GROUPS_OU, DEFAULT_GROUPS_OU);
+		StringBuilder dnBuilder = new StringBuilder(ou).append(CoreConstants.COMMA).append(domainDN);
+		getSettings().setProperty(PROPERTY_GROUPS_DN, dnBuilder.toString());
+
+
+		String dn = getApplicationProperty(PROPERTY_GROUPS_DN, DEFAULT_GROUPS_DN);
+		if (!StringUtil.isEmpty(dn)) {
+			SearchResult existingEntities = null;
+
+			try {
+				existingEntities = getConnectionService().findByDN(GROUP_SEARCH_FILTER, dn);
+			} catch (LDAPSearchException e) {}
+
+			if (existingEntities == null) {
+				
+				String timeout = getApplicationProperty(
+						ConnectionService.PROPERTY_RESPONSE_TIMEOUT, 
+						ConnectionService.DEFAULT_RESPONSE_TIMEOUT.toString());
+
+				AddRequest request = new AddRequest(new DN(dn));
+				request.setResponseTimeoutMillis(Long.valueOf(timeout));
+				request.addAttribute("objectClass", "top");
+				request.addAttribute("objectClass", OrganizationalUnit.OBJECT_CLASS);
+				request.addAttribute(OrganizationalUnit.ORGANIZATIONAL_UNIT_NAME, ou.substring(3));
+				request.addAttribute(OrganizationalUnit.DESCRIPTION, "Default directory or containing groups of domain");
+
+				LDAPConnection connection = getConnectionService().getConnection();
+				LDAPResult response = connection.add(request);
+				connection.close();
+
+				if (response.getResultCode().intValue() != ResultCode.SUCCESS_INT_VALUE) {
+					throw new RuntimeException(response.getResultString());
+				}
+			}
+
+			getSettings().setProperty(PROPERTY_GROUPS_OU_INITIALIZED, Boolean.TRUE.toString());
+		}
+	}
+
 	/**
 	 * 
 	 * <p>Creates new entity</p>

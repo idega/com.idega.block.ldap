@@ -115,6 +115,12 @@ public interface GroupDAO {
 	 * Application property for setting base users directory of LDAP server
 	 */
 	static final String PROPERTY_GROUPS_OU = "ldap.ou.groups";
+
+	/**
+	 * property to define if directory was initialized
+	 */
+	static final String PROPERTY_GROUPS_OU_INITIALIZED = "ldap.ou.groups.initialized";
+
 	
 	/**
 	 * Default groups directory DN 
@@ -156,4 +162,12 @@ public interface GroupDAO {
 	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
 	 */
 	Group update(DN distinguishedName, Group entity) throws LDAPException, GeneralSecurityException;
+
+	/**
+	 * 
+	 * <p>Initializes group directory</p>
+	 * @throws GeneralSecurityException there are problems with TLS/SSL connection.
+	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
+	 */
+	void initialize() throws LDAPException, GeneralSecurityException;
 }
