@@ -229,7 +229,8 @@ public class GroupDAOImpl extends DefaultSpringBean implements GroupDAO {
 	 * @return distinguished name objects or {@link Collections#emptyMap()} on failure
 	 * @throws LDAPException if the provided string cannot be parsed as a valid DN.
 	 */
-	private TreeMap<DN, Group> getDistinguishedNames(Group group) throws LDAPException {
+	@Override
+	public TreeMap<DN, Group> getDistinguishedNames(Group group) throws LDAPException {
 		TreeMap<DN, Group> distinguishedNames = new TreeMap<>();
 
 		String baseDistinguishedName = getApplicationProperty(PROPERTY_GROUPS_DN, DEFAULT_GROUPS_DN);

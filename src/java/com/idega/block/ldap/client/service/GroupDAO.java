@@ -84,10 +84,13 @@ package com.idega.block.ldap.client.service;
 
 import java.security.GeneralSecurityException;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import com.idega.block.ldap.client.constants.OrganizationalUnit;
 import com.idega.user.data.bean.Group;
 import com.idega.util.CoreConstants;
+import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 
@@ -134,4 +137,12 @@ public interface GroupDAO {
 	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
 	 */
 	List<Group> update(Group group) throws LDAPException, GeneralSecurityException;
+
+	/**
+	 * 
+	 * @param group to fetch data for, not <code>null</code>
+	 * @return {@link Map} of {@link Group} and it's parents with their DN's
+	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
+	 */
+	TreeMap<DN, Group> getDistinguishedNames(Group group) throws LDAPException;
 }
