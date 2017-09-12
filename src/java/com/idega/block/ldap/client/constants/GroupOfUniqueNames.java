@@ -1,5 +1,5 @@
 /**
- * @(#)GroupDAO.java    1.0.0 09:19:12
+ * @(#)GroupOfUniqueNames.java    1.0.0 17:00:15
  *
  * Idega Software hf. Source Code Licence Agreement x
  *
@@ -80,80 +80,33 @@
  *     License that was purchased to become eligible to receive the Source 
  *     Code after Licensee receives the source code. 
  */
-package com.idega.block.ldap.client.service;
-
-import java.security.GeneralSecurityException;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-import com.idega.block.ldap.client.constants.OrganizationalUnit;
-import com.idega.user.data.bean.Group;
-import com.idega.util.CoreConstants;
-import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.Filter;
-import com.unboundid.ldap.sdk.LDAPException;
+package com.idega.block.ldap.client.constants;
 
 /**
- * <p>Spring bean designed for managing groups in LDAP server</p>
+ * <h1>3.6. 'groupOfUniqueNames'</h1>
+ * <p>The 'groupOfUniqueNames' object class is the same as the 'groupOfNames' object class except that the object 
+ * names are not repeated or reassigned within a set scope.</p>
+ * 
+ * <pre>
+ *     (Source: X.521 [X.521])
+ *     ( 2.5.6.17 NAME 'groupOfUniqueNames'
+ *         SUP top
+ *         STRUCTURAL
+ *         MUST ( uniqueMember $ cn )
+ *         MAY ( businessCategory $
+ *             seeAlso $
+ *             owner $
+ *             ou $
+ *             o $
+ *             description ) )
+ * </pre>
  *
  * @version 1.0.0 2017-09-11
  * @author <a href="mailto:martynas@idega.is">Martynas Stakė</a>
  */
-public interface GroupDAO {
+public interface GroupOfUniqueNames extends OrganizationalUnit {
 
-	static final String JAVASCRIPT_CLASS_NAME = "GroupActiveDirectoryDAO";
-
-	static final String BEAN_NAME = "groupActiveDirectoryDAO";
-
-	/**
-	 * Default users directory DN
-	 */
-	static final String DEFAULT_GROUPS_OU = "ou=Groups";
-
-	/**
-	 * Application property for setting base users directory of LDAP server
-	 */
-	static final String PROPERTY_GROUPS_OU = "ldap.ou.groups";
+	static final String OBJECT_CLASS = "groupOfUniqueNames";
 	
-	/**
-	 * Default groups directory DN 
-	 */
-	static final String DEFAULT_GROUPS_DN = DEFAULT_GROUPS_OU + CoreConstants.COMMA + ConnectionService.DEFAULT_BASE_DN;
-
-	/**
-	 * Application property for setting base groups directory of LDAP server
-	 */
-	static final String PROPERTY_GROUPS_DN = "ldap.dn.groups";
-
-	static final Filter GROUP_SEARCH_FILTER = Filter.createEqualityFilter("objectClass", OrganizationalUnit.OBJECT_CLASS);
-
-	/**
-	 * 
-	 * <p>Creates or updates entity</p>
-	 * @param entity itself to write, not <code>null</code>
-	 * @return created entity or <code>null</code> on failure
-	 * @throws GeneralSecurityException there are problems with TLS/SSL connection.
-	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
-	 */
-	List<Group> update(Group group) throws LDAPException, GeneralSecurityException;
-
-	/**
-	 * 
-	 * @param group to fetch data for, not <code>null</code>
-	 * @return {@link Map} of {@link Group} and it's parents with their DN's
-	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
-	 */
-	TreeMap<DN, Group> getDistinguishedNames(Group group) throws LDAPException;
-
-	/**
-	 * 
-	 * <p>Creates or updates entity</p>
-	 * @param distinguishedName of entity, not <code>null</code>
-	 * @param entity itself to write, not <code>null</code>
-	 * @return created entity or <code>null</code> on failure
-	 * @throws GeneralSecurityException there are problems with TLS/SSL connection.
-	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
-	 */
-	Group update(DN distinguishedName, Group entity) throws LDAPException, GeneralSecurityException;
+	static final String UNIQUE_MEMBER = "uniqueMember";
 }

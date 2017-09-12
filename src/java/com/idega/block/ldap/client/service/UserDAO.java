@@ -88,6 +88,7 @@ import java.util.Collection;
 import com.idega.block.ldap.client.constants.InternetOrganizationalPerson;
 import com.idega.user.data.bean.User;
 import com.idega.util.CoreConstants;
+import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSearchException;
@@ -167,4 +168,12 @@ public interface UserDAO {
 	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
 	 */
 	String update(String personalId, String password) throws LDAPException, GeneralSecurityException;
+
+	/**
+	 * 
+	 * @param uuid is {@link User#getUniqueId()}, no UUID added if <code>null</code>
+	 * @return distinguished name object or <code>null</code> on failure
+	 * @throws LDAPException if the provided string cannot be parsed as a valid DN.
+	 */
+	DN getDistinguishedName(String uuid) throws LDAPException;
 }

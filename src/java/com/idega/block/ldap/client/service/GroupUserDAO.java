@@ -1,5 +1,5 @@
 /**
- * @(#)GroupDAO.java    1.0.0 09:19:12
+ * @(#)GroupUserDAO.java    1.0.0 16:55:48
  *
  * Idega Software hf. Source Code Licence Agreement x
  *
@@ -83,77 +83,34 @@
 package com.idega.block.ldap.client.service;
 
 import java.security.GeneralSecurityException;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
-import com.idega.block.ldap.client.constants.OrganizationalUnit;
+import com.idega.block.ldap.client.constants.GroupOfUniqueNames;
 import com.idega.user.data.bean.Group;
-import com.idega.util.CoreConstants;
-import com.unboundid.ldap.sdk.DN;
+import com.idega.user.data.bean.User;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 
 /**
- * <p>Spring bean designed for managing groups in LDAP server</p>
+ * <p>Connection between {@link User}s and {@link Group}s in LDAP system</p>
  *
  * @version 1.0.0 2017-09-11
  * @author <a href="mailto:martynas@idega.is">Martynas Stakė</a>
  */
-public interface GroupDAO {
+public interface GroupUserDAO {
 
-	static final String JAVASCRIPT_CLASS_NAME = "GroupActiveDirectoryDAO";
+	static final String JAVASCRIPT_CLASS_NAME = "GroupUserActiveDirectoryDAO";
 
-	static final String BEAN_NAME = "groupActiveDirectoryDAO";
+	static final String BEAN_NAME = "groupUserActiveDirectoryDAO";
 
-	/**
-	 * Default users directory DN
-	 */
-	static final String DEFAULT_GROUPS_OU = "ou=Groups";
-
-	/**
-	 * Application property for setting base users directory of LDAP server
-	 */
-	static final String PROPERTY_GROUPS_OU = "ldap.ou.groups";
-	
-	/**
-	 * Default groups directory DN 
-	 */
-	static final String DEFAULT_GROUPS_DN = DEFAULT_GROUPS_OU + CoreConstants.COMMA + ConnectionService.DEFAULT_BASE_DN;
-
-	/**
-	 * Application property for setting base groups directory of LDAP server
-	 */
-	static final String PROPERTY_GROUPS_DN = "ldap.dn.groups";
-
-	static final Filter GROUP_SEARCH_FILTER = Filter.createEqualityFilter("objectClass", OrganizationalUnit.OBJECT_CLASS);
+	static final Filter GROUP_SEARCH_FILTER = Filter.createEqualityFilter("objectClass", GroupOfUniqueNames.OBJECT_CLASS);
 
 	/**
 	 * 
-	 * <p>Creates or updates entity</p>
-	 * @param entity itself to write, not <code>null</code>
-	 * @return created entity or <code>null</code> on failure
+	 * <p>Created or updates relation recored in LDAP</p>
+	 * @param group to relate {@link User} with, not <code>null</code>
+	 * @param user to add to relation, not <code>null</code>
 	 * @throws GeneralSecurityException there are problems with TLS/SSL connection.
 	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
 	 */
-	List<Group> update(Group group) throws LDAPException, GeneralSecurityException;
-
-	/**
-	 * 
-	 * @param group to fetch data for, not <code>null</code>
-	 * @return {@link Map} of {@link Group} and it's parents with their DN's
-	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
-	 */
-	TreeMap<DN, Group> getDistinguishedNames(Group group) throws LDAPException;
-
-	/**
-	 * 
-	 * <p>Creates or updates entity</p>
-	 * @param distinguishedName of entity, not <code>null</code>
-	 * @param entity itself to write, not <code>null</code>
-	 * @return created entity or <code>null</code> on failure
-	 * @throws GeneralSecurityException there are problems with TLS/SSL connection.
-	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
-	 */
-	Group update(DN distinguishedName, Group entity) throws LDAPException, GeneralSecurityException;
+	void update(Group group, User user, String password) throws LDAPException, GeneralSecurityException;
 }

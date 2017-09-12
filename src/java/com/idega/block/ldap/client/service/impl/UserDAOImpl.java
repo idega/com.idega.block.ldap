@@ -100,7 +100,6 @@ import com.idega.block.ldap.client.constants.InternetOrganizationalPerson;
 import com.idega.block.ldap.client.constants.OrganizationalPerson;
 import com.idega.block.ldap.client.constants.Person;
 import com.idega.block.ldap.client.service.ConnectionService;
-import com.idega.block.ldap.client.service.GroupDAO;
 import com.idega.block.ldap.client.service.UserDAO;
 import com.idega.core.accesscontrol.data.LoginTable;
 import com.idega.core.accesscontrol.data.LoginTableHome;
@@ -114,7 +113,6 @@ import com.idega.core.location.data.bean.Address;
 import com.idega.core.location.data.bean.AddressType;
 import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
-import com.idega.user.data.bean.Group;
 import com.idega.user.data.bean.User;
 import com.idega.util.CoreConstants;
 import com.idega.util.ListUtil;
@@ -145,9 +143,6 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO, Applicati
 	private ConnectionService connectionService;
 
 	@Autowired
-	private GroupDAO activeDirectoryGroupDAO;
-
-	@Autowired
 	private com.idega.user.dao.UserDAO userDAO;
 
 	@Autowired
@@ -155,14 +150,6 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO, Applicati
 
 	@Autowired
 	private AddressDAO addressDAO;
-
-	private GroupDAO getActiveDirectoryGroupDAO() {
-		if (this.activeDirectoryGroupDAO == null) {
-			ELUtil.getInstance().autowire(this);
-		}
-
-		return this.activeDirectoryGroupDAO;
-	}
 
 	private AddressDAO getAddressDAO() {
 		if (this.addressDAO == null) {
@@ -288,11 +275,16 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO, Applicati
 	 * @return distinguished name object or <code>null</code> on failure
 	 * @throws LDAPException if the provided string cannot be parsed as a valid DN.
 	 */
-	private DN getDistinguishedName(String uuid) throws LDAPException {
+	@Override
+	public DN getDistinguishedName(String uuid) throws LDAPException {
 		String distinguishedName = getApplicationProperty(PROPERTY_USERS_DN, DEFAULT_USERS_DN);
 		if (!StringUtil.isEmpty(distinguishedName)) {
 			if (!StringUtil.isEmpty(uuid)) {
-				return new DN("uid=" + uuid + CoreConstants.COMMA + distinguishedName);
+				StringBuilder dn = new StringBuilder()
+				.append(InternetOrganizationalPerson.USER_ID).append(CoreConstants.EQ).append(uuid)
+				.append(CoreConstants.COMMA).append(distinguishedName);
+
+				return new DN(dn.toString());
 			}
 
 			return new DN(distinguishedName);
@@ -452,13 +444,7 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO, Applicati
 			}
 
 			if (ListUtil.isEmpty(existingUsers)) {
-				entity = create(entity, password);
-				if (entity != null) {
-					List<Group> groups = getActiveDirectoryGroupDAO().update(entity.getUserRepresentative());
-					if (!ListUtil.isEmpty(groups)) {
-						return entity;
-					}
-				}
+				return create(entity, password);
 			}
 
 			ArrayList<Modification> modifications = new ArrayList<>();
@@ -590,13 +576,6 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO, Applicati
 
 			if (response.getResultCode().intValue() != ResultCode.SUCCESS_INT_VALUE) {
 				throw new RuntimeException(response.getResultString());
-			}
-
-			if (entity != null) {
-				List<Group> groups = getActiveDirectoryGroupDAO().update(entity.getUserRepresentative());
-				if (!ListUtil.isEmpty(groups)) {
-					return entity;
-				}
 			}
 		}
 

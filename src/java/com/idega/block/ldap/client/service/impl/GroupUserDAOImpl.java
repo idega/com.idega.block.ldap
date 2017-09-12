@@ -1,5 +1,5 @@
 /**
- * @(#)GroupDAOImpl.java    1.0.0 09:20:03
+ * @(#)GroupUserDAOImpl.java    1.0.0 17:12:19
  *
  * Idega Software hf. Source Code Licence Agreement x
  *
@@ -84,11 +84,6 @@ package com.idega.block.ldap.client.service.impl;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 
@@ -96,20 +91,25 @@ import javax.ejb.FinderException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import com.idega.block.ldap.client.constants.OrganizationalUnit;
+import com.idega.block.ldap.client.constants.GroupOfUniqueNames;
 import com.idega.block.ldap.client.service.ConnectionService;
 import com.idega.block.ldap.client.service.GroupDAO;
+import com.idega.block.ldap.client.service.GroupUserDAO;
+import com.idega.block.ldap.client.service.UserDAO;
+import com.idega.core.accesscontrol.data.LoginTable;
+import com.idega.core.accesscontrol.data.LoginTableHome;
+import com.idega.core.accesscontrol.event.LoggedInUserCredentials;
 import com.idega.core.business.DefaultSpringBean;
 import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
-import com.idega.user.data.GroupHome;
 import com.idega.user.data.bean.Group;
 import com.idega.user.data.bean.GroupType;
+import com.idega.user.data.bean.User;
 import com.idega.util.CoreConstants;
-import com.idega.util.ListUtil;
 import com.idega.util.StringUtil;
 import com.idega.util.expression.ELUtil;
 import com.unboundid.ldap.sdk.AddRequest;
@@ -123,21 +123,50 @@ import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
-import com.unboundid.ldap.sdk.SearchResultEntry;
 
 /**
  * @version 1.0.0 2017-09-11
  * @author <a href="mailto:martynas@idega.is">Martynas Stakė</a>
  */
-@Service(GroupDAO.BEAN_NAME)
+@Service(GroupUserDAO.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-public class GroupDAOImpl extends DefaultSpringBean implements GroupDAO {
+public class GroupUserDAOImpl extends DefaultSpringBean implements GroupUserDAO, ApplicationListener<LoggedInUserCredentials> {
+
+	@Autowired
+	private GroupDAO groupDAO;
+
+	@Autowired
+	private UserDAO userDAO;
+
+	@Autowired
+	private com.idega.user.dao.UserDAO userJPADAO;
 
 	@Autowired
 	private ConnectionService connectionService;
 
-	@Autowired
-	private com.idega.user.dao.GroupDAO groupDAO;
+	private GroupDAO getGroupDAO() {
+		if (this.groupDAO == null) {
+			ELUtil.getInstance().autowire(this);
+		}
+
+		return this.groupDAO;
+	}
+
+	private UserDAO getUserDAO() {
+		if (this.userDAO == null) {
+			ELUtil.getInstance().autowire(this);
+		}
+
+		return this.userDAO;
+	}
+
+	private com.idega.user.dao.UserDAO getUserJPADAO() {
+		if (this.userJPADAO == null) {
+			ELUtil.getInstance().autowire(this);
+		}
+
+		return this.userJPADAO;
+	}
 
 	private ConnectionService getConnectionService() {
 		if (this.connectionService == null) {
@@ -147,19 +176,11 @@ public class GroupDAOImpl extends DefaultSpringBean implements GroupDAO {
 		return this.connectionService;
 	}
 
-	private com.idega.user.dao.GroupDAO getGroupDAO() {
-		if (this.groupDAO == null) {
-			ELUtil.getInstance().autowire(this);
-		}
-
-		return this.groupDAO;
-	}
-
-	private GroupHome getGroupHome() {
+	private LoginTableHome getLoginTableHome() {
 		try {
-			return (GroupHome) IDOLookup.getHome(com.idega.user.data.Group.class);
+			return (LoginTableHome) IDOLookup.getHome(LoginTable.class);
 		} catch (IDOLookupException e) {
-			getLogger().log(Level.WARNING, "Failed to get " + GroupHome.class + " cause of: ", e);
+			getLogger().log(Level.WARNING, "Failed to get " + LoginTableHome.class.getSimpleName() + " cause of: ", e);
 		}
 
 		return null;
@@ -183,136 +204,47 @@ public class GroupDAOImpl extends DefaultSpringBean implements GroupDAO {
 
 	/**
 	 * 
-	 * @param group to get distinguished names tree for, not <code>null</code>
-	 * @return {@link Map} of distinguished name part and {@link Group} of that name or {@link Collections#emptyMap()}
-	 * on failure;
-	 */
-	private HashMap<String, Group> getPaths(Group group) {
-		HashMap<String, Group> paths = new HashMap<>();
-		if (group != null) {
-			List<Group> parentGroups = getGroupDAO().findParentGroups(group.getID());
-			if (!ListUtil.isEmpty(parentGroups)) {
-				for (Group parentGroup : parentGroups) {
-					HashMap<String, Group> parentPaths = getPaths(parentGroup);
-					for (String parentPath : parentPaths.keySet()) {
-						Group pathGroup = parentPaths.get(parentPath);
-						if (parentGroups.contains(pathGroup)) {
-							/*
-							 * Ensuring that path is appended only to direct parent group
-							 */
-							
-
-							StringBuilder path = new StringBuilder(OrganizationalUnit.ORGANIZATIONAL_UNIT_NAME).append(CoreConstants.EQ).append(getGroupName(group));
-							path.append(CoreConstants.COMMA);
-							path.append(parentPath);
-							paths.put(path.toString(), group);
-						}
-					}
-
-					/*
-					 * Putting all parent group paths
-					 */
-					paths.putAll(parentPaths);
-				}
-			} else {
-				StringBuilder path = new StringBuilder(OrganizationalUnit.ORGANIZATIONAL_UNIT_NAME).append(CoreConstants.EQ).append(group.getName());
-				paths.put(path.toString(), group);
-			}
-		}
-
-		return paths;
-	}
-
-	/**
-	 * 
-	 * @param group to get tree of {@link DN}s fo, not <code>null</code>
-	 * @return distinguished name objects or {@link Collections#emptyMap()} on failure
-	 * @throws LDAPException if the provided string cannot be parsed as a valid DN.
-	 */
-	@Override
-	public TreeMap<DN, Group> getDistinguishedNames(Group group) throws LDAPException {
-		TreeMap<DN, Group> distinguishedNames = new TreeMap<>();
-
-		String baseDistinguishedName = getApplicationProperty(PROPERTY_GROUPS_DN, DEFAULT_GROUPS_DN);
-		if (!StringUtil.isEmpty(baseDistinguishedName)) {
-			HashMap<String, Group> paths = getPaths(group);
-			for (String path : paths.keySet()) {
-				StringBuilder fullPath = new StringBuilder(path);
-				fullPath.append(CoreConstants.COMMA);
-				fullPath.append(baseDistinguishedName);
-
-				distinguishedNames.put(new DN(fullPath.toString()), paths.get(path));
-			}
-		}
-
-		return distinguishedNames;
-	}
-
-	/**
-	 * 
-	 * @param distinguishedName to fetch results by, not <code>null</code>
-	 * @return entities by {@link DN} or {@link Collections#emptyList()} on failure
-	 * @throws LDAPSearchException if the search does not complete successfully, or if a problem is encountered while 
-	 * sending the request or reading the response. If one or more entries or references were returned before the 
-	 * failure was encountered, then the LDAPSearchException object may be examined to obtain information about those 
-	 * entries and/or references.
+	 * <p>Creates {@link GroupOfUniqueNames} entity</p>
+	 * @param group to create entity for, not <code>null</code>
+	 * @param distinguishedName of {@link Group} to create entity for, not <code>null</code>
+	 * @param userDistinguishedName of {@link User} to add to {@link Group}, not <code>null</code>
 	 * @throws GeneralSecurityException there are problems with TLS/SSL connection.
 	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
 	 */
-	private Collection<Group> findByDN(DN distinguishedName) throws LDAPSearchException, LDAPException, GeneralSecurityException {
-		ArrayList<Group> entities = new ArrayList<>();
+	private void create(Group group, DN distinguishedName, DN userDistinguishedName) throws LDAPException, GeneralSecurityException {
+		if (group != null && distinguishedName != null && userDistinguishedName != null) {
 
-		SearchResult results = getConnectionService().findByDN(GROUP_SEARCH_FILTER, distinguishedName);
-		if (results != null) {
-			List<SearchResultEntry> entries = results.getSearchEntries();
-			for (SearchResultEntry entry : entries) {
-				com.idega.user.data.Group ejbGroup = null;
-				try {
-					ejbGroup = getGroupHome().findGroupByUniqueId(entry.getAttributeValue(OrganizationalUnit.DESCRIPTION));
-				} catch (FinderException e) {}
-
-				Group entity = getGroupDAO().findGroup((Integer) ejbGroup.getPrimaryKey());
-				if (entity != null) {
-					entities.add(entity);
-				}
-			}
-		}
-
-		return entities;
-	}
-
-	/**
-	 * 
-	 * <p>Creates new entity</p>
-	 * @param distinguishedName of entity, not <code>null</code>
-	 * @param entity itself to write, not <code>null</code>
-	 * @return created entity or <code>null</code> on failure
-	 * @throws GeneralSecurityException there are problems with TLS/SSL connection.
-	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
-	 */
-	private Group create(DN distinguishedName, Group entity) throws LDAPException, GeneralSecurityException {
-		if (entity != null) {
 			String timeout = getApplicationProperty(
 					ConnectionService.PROPERTY_RESPONSE_TIMEOUT, 
 					ConnectionService.DEFAULT_RESPONSE_TIMEOUT.toString());
 
-			AddRequest request = new AddRequest(distinguishedName);
+			StringBuilder relationDistinguishedName = new StringBuilder()
+					.append(GroupOfUniqueNames.COMMON_NAME)
+					.append(CoreConstants.EQ)
+					.append(getGroupName(group))
+					.append(CoreConstants.COMMA)
+					.append(distinguishedName.toString());
+
+			AddRequest request = new AddRequest(new DN(relationDistinguishedName.toString()));
 			request.setResponseTimeoutMillis(Long.valueOf(timeout));
 			request.addAttribute("objectClass", "top");
 
 			/*
 			 * Organizational unit object information
 			 */
-			request.addAttribute("objectClass", OrganizationalUnit.OBJECT_CLASS);
-			request.addAttribute(OrganizationalUnit.ORGANIZATIONAL_UNIT_NAME, getGroupName(entity));
+			request.addAttribute("objectClass", GroupOfUniqueNames.OBJECT_CLASS);
+			request.addAttribute(GroupOfUniqueNames.COMMON_NAME, getGroupName(group));
+			request.addAttribute(GroupOfUniqueNames.ORGANIZATIONAL_UNIT_NAME, getGroupName(group));
+			request.addAttribute(GroupOfUniqueNames.UNIQUE_MEMBER, userDistinguishedName.toString());
+			request.addAttribute(GroupOfUniqueNames.SEE, distinguishedName.toString());
 
-			if (!StringUtil.isEmpty(entity.getUniqueId())) {
-				request.addAttribute(OrganizationalUnit.DESCRIPTION, entity.getUniqueId());
+			if (!StringUtil.isEmpty(group.getUniqueId())) {
+				request.addAttribute(GroupOfUniqueNames.DESCRIPTION, group.getUniqueId());
 			}
 
-			GroupType type = entity.getGroupType();
+			GroupType type = group.getGroupType();
 			if (type != null && !StringUtil.isEmpty(type.getGroupType())) {
-				request.addAttribute(OrganizationalUnit.BUSINESS_CATEGORY, type.getGroupType());
+				request.addAttribute(GroupOfUniqueNames.BUSINESS_CATEGORY, type.getGroupType());
 			}
 
 			LDAPConnection connection = getConnectionService().getConnection();
@@ -323,85 +255,134 @@ public class GroupDAOImpl extends DefaultSpringBean implements GroupDAO {
 				throw new RuntimeException(response.getResultString());
 			}
 		}
-
-		return entity;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.idega.block.ldap.client.service.GroupDAO#update(com.unboundid.ldap.sdk.DN, com.idega.user.data.bean.Group)
+	/**
+	 * 
+	 * <p>Creates or Updates {@link GroupOfUniqueNames} entity</p>
+	 * @param group to create entity for, not <code>null</code>
+	 * @param distinguishedName of {@link Group} to create entity for, not <code>null</code>
+	 * @param userDistinguishedName of {@link User} to add to {@link Group}, not <code>null</code>
+	 * @throws GeneralSecurityException there are problems with TLS/SSL connection.
+	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
 	 */
-	@Override
-	public Group update(DN distinguishedName, Group entity) throws LDAPException, GeneralSecurityException {
-		if (entity != null) {
-			Collection<Group> existingEntities = null;
+	private void update(Group group, DN distinguishedName, DN userDistinguishedName) throws LDAPException, GeneralSecurityException {
+		if (group != null && distinguishedName != null && userDistinguishedName != null) {
+
+			StringBuilder relationDistinguishedName = new StringBuilder()
+					.append(GroupOfUniqueNames.COMMON_NAME)
+					.append(CoreConstants.EQ)
+					.append(getGroupName(group))
+					.append(CoreConstants.COMMA)
+					.append(distinguishedName.toString());
+
+			SearchResult existingRelations = null;
 			try {
-				existingEntities = findByDN(distinguishedName);
+				existingRelations = getConnectionService().findByDN(
+							GROUP_SEARCH_FILTER, 
+							relationDistinguishedName.toString());
 			} catch (LDAPSearchException e) {
-				getLogger().warning("User not found in LDAP repository, cause of: " + e.getMessage());
+				getLogger().log(Level.WARNING, "Entity by path not found: " + relationDistinguishedName.toString());
 			}
+			
+			if (existingRelations == null || existingRelations.getEntryCount() == 0) {
+				create(group, distinguishedName, userDistinguishedName);
+			} else {
+				ArrayList<Modification> modifications = new ArrayList<>();
 
-			if (ListUtil.isEmpty(existingEntities)) {
-				return create(distinguishedName, entity);
-			}
+				/*
+				 * Organizational unit object information
+				 */
+				String groupName = getGroupName(group);
+				if (!StringUtil.isEmpty(groupName)) {
+					modifications.add(new Modification(
+							ModificationType.REPLACE, 
+							GroupOfUniqueNames.COMMON_NAME, 
+							groupName));
+					modifications.add(new Modification(
+							ModificationType.REPLACE, 
+							GroupOfUniqueNames.ORGANIZATIONAL_UNIT_NAME, 
+							groupName));
+				}
 
-			ArrayList<Modification> modifications = new ArrayList<>();
+				if (!StringUtil.isEmpty(group.getUniqueId())) {
+					modifications.add(new Modification(
+							ModificationType.REPLACE, 
+							GroupOfUniqueNames.DESCRIPTION, 
+							group.getUniqueId()));
+				}
 
-			/*
-			 * Organizational unit object information
-			 */
-			String groupName = getGroupName(entity);
-			if (!StringUtil.isEmpty(groupName)) {
+				GroupType type = group.getGroupType();
+				if (type != null && !StringUtil.isEmpty(type.getGroupType())) {
+					modifications.add(new Modification(
+							ModificationType.REPLACE, 
+							GroupOfUniqueNames.BUSINESS_CATEGORY, 
+							type.getGroupType()));
+				}
+
+				/*
+				 * Adding user
+				 */
 				modifications.add(new Modification(
-						ModificationType.REPLACE, 
-						OrganizationalUnit.ORGANIZATIONAL_UNIT_NAME, 
-						groupName));
-			}
+						ModificationType.ADD, 
+						GroupOfUniqueNames.UNIQUE_MEMBER, 
+						userDistinguishedName.toString()));
 
-			if (!StringUtil.isEmpty(entity.getUniqueId())) {
-				modifications.add(new Modification(
-						ModificationType.REPLACE, 
-						OrganizationalUnit.DESCRIPTION, 
-						entity.getUniqueId()));
-			}
+				ModifyRequest modificationRequest = new ModifyRequest(new DN(relationDistinguishedName.toString()), modifications);
+				LDAPConnection connection = getConnectionService().getConnection();
+				LDAPResult response = connection.modify(modificationRequest);
+				connection.close();
 
-			GroupType type = entity.getGroupType();
-			if (type != null && !StringUtil.isEmpty(type.getGroupType())) {
-				modifications.add(new Modification(
-						ModificationType.REPLACE, 
-						OrganizationalUnit.BUSINESS_CATEGORY, 
-						type.getGroupType()));
-			}
-
-			ModifyRequest modificationRequest = new ModifyRequest(distinguishedName, modifications);
-			LDAPConnection connection = getConnectionService().getConnection();
-			LDAPResult response = connection.modify(modificationRequest);
-			connection.close();
-
-			if (response.getResultCode().intValue() != ResultCode.SUCCESS_INT_VALUE) {
-				throw new RuntimeException(response.getResultString());
+				if (response.getResultCode().intValue() != ResultCode.SUCCESS_INT_VALUE) {
+					throw new RuntimeException(response.getResultString());
+				}
 			}
 		}
+	}
 
-		return entity;
+	/* (non-Javadoc)
+	 * @see com.idega.block.ldap.client.service.GroupUserDAO#update(com.idega.user.data.bean.Group, com.idega.user.data.bean.User)
+	 */
+	@Override
+	public void update(Group group, User user, String password) throws LDAPException, GeneralSecurityException {
+		TreeMap<DN, Group> distinguishedNames = getGroupDAO().getDistinguishedNames(group);
+		
+		User updatedUser = getUserDAO().update(user, password);
+		if (updatedUser != null) {
+			DN userDistinguishedName = getUserDAO().getDistinguishedName(updatedUser != null ? updatedUser.getUniqueId() : null);
+			for (DN distinguishedName : distinguishedNames.keySet()) {
+				Group updatedGroup = getGroupDAO().update(distinguishedName, distinguishedNames.get(distinguishedName));
+				if (updatedGroup != null) {
+					update(updatedGroup, distinguishedName, userDistinguishedName);
+				}
+			}
+		}
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see com.idega.block.ldap.client.service.GroupDAO#update(com.idega.user.data.bean.Group)
+	 * @see org.springframework.context.ApplicationListener#onApplicationEvent(org.springframework.context.ApplicationEvent)
 	 */
 	@Override
-	public List<Group> update(Group group) throws LDAPException, GeneralSecurityException {
-		ArrayList<Group> updatedGroups = new ArrayList<>();
-		
-		TreeMap<DN, Group> distinguishedNames = getDistinguishedNames(group);
-		for (DN distinguishedName : distinguishedNames.keySet()) {
-			Group updatedGroup = update(distinguishedName, distinguishedNames.get(distinguishedName));
-			if (updatedGroup != null) {
-				updatedGroups.add(updatedGroup);
+	public void onApplicationEvent(LoggedInUserCredentials event) {
+		if (event != null) {
+			LoginTable login = null;
+			try {
+				login = getLoginTableHome().findByLogin(event.getUserName());
+			} catch (FinderException e1) {
+				getLogger().log(Level.WARNING, "Failed to update member, cause of: ", e1);
+			}
+
+			if (login != null) {
+				User user = getUserJPADAO().getUser(login.getUserId());
+				if (user != null) {
+					try {
+						update(user.getGroup(), user, event.getPassword());
+					} catch (LDAPException | GeneralSecurityException e) {
+						getLogger().log(Level.WARNING, "Failed to update member, cause of: ", e);
+					}
+				}
 			}
 		}
-
-		return updatedGroups;
 	}
 }

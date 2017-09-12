@@ -172,6 +172,10 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 		return new LDAPConnection(getSocketFactory(), getConnectionOptions(), domain, Integer.valueOf(port), adminDN, adminDNPassword);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see com.idega.block.ldap.client.service.ConnectionService#findByDN(com.unboundid.ldap.sdk.Filter, com.unboundid.ldap.sdk.DN)
+	 */
 	@Override
 	public SearchResult findByDN(Filter filter, DN distinguishedName) throws LDAPSearchException, LDAPException, GeneralSecurityException {
 		String timeout = getApplicationProperty(PROPERTY_RESPONSE_TIMEOUT, DEFAULT_RESPONSE_TIMEOUT.toString());
