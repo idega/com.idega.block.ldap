@@ -366,23 +366,33 @@ public class GroupUserDAOImpl extends DefaultSpringBean implements GroupUserDAO,
 	@Override
 	public void onApplicationEvent(LoggedInUserCredentials event) {
 		if (event != null) {
-			LoginTable login = null;
-			try {
-				login = getLoginTableHome().findByLogin(event.getUserName());
-			} catch (FinderException e1) {
-				getLogger().log(Level.WARNING, "Failed to update member, cause of: ", e1);
-			}
+			new Thread(new Runnable() {
 
-			if (login != null) {
-				User user = getUserJPADAO().getUser(login.getUserId());
-				if (user != null) {
+				/*
+				 * (non-Javadoc)
+				 * @see java.lang.Runnable#run()
+				 */
+				@Override
+				public void run() {
+					LoginTable login = null;
 					try {
-						update(user.getGroup(), user, event.getPassword());
-					} catch (LDAPException | GeneralSecurityException e) {
-						getLogger().log(Level.WARNING, "Failed to update member, cause of: ", e);
+						login = getLoginTableHome().findByLogin(event.getUserName());
+					} catch (FinderException e1) {
+						getLogger().log(Level.WARNING, "Failed to update member, cause of: ", e1);
 					}
+
+					if (login != null) {
+						User user = getUserJPADAO().getUser(login.getUserId());
+						if (user != null) {
+							try {
+								update(user.getGroup(), user, event.getPassword());
+							} catch (LDAPException | GeneralSecurityException e) {
+								getLogger().log(Level.WARNING, "Failed to update member, cause of: ", e);
+							}
+						}
+					}					
 				}
-			}
+			}).start();
 		}
 	}
 }
