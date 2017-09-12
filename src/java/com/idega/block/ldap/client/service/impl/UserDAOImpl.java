@@ -97,8 +97,10 @@ import org.springframework.stereotype.Service;
 
 import com.idega.block.ldap.client.constants.InternetOrganizationalPerson;
 import com.idega.block.ldap.client.constants.OrganizationalPerson;
+import com.idega.block.ldap.client.constants.OrganizationalUnit;
 import com.idega.block.ldap.client.constants.Person;
 import com.idega.block.ldap.client.service.ConnectionService;
+import com.idega.block.ldap.client.service.GroupDAO;
 import com.idega.block.ldap.client.service.UserDAO;
 import com.idega.core.accesscontrol.data.LoginTable;
 import com.idega.core.accesscontrol.data.LoginTableHome;
@@ -318,6 +320,62 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 
 		return entities;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.idega.block.ldap.client.service.UserDAO#initialize()
+	 */
+	@Override
+	public void initialize() throws LDAPException, GeneralSecurityException {
+		String initializationValue = getApplicationProperty(PROPERTY_USERS_OU_INITIALIZED);
+		if (Boolean.TRUE.toString().equals(initializationValue)) {
+			return;
+		}
+
+		/*
+		 * Updating Users unit DN
+		 */
+		String domainDN = getApplicationProperty(ConnectionService.PROPERTY_DOMAIN_DN);
+
+		String ou = getApplicationProperty(PROPERTY_USERS_OU, DEFAULT_USERS_OU);
+		StringBuilder dnBuilder = new StringBuilder(ou).append(CoreConstants.COMMA).append(domainDN);
+		getSettings().setProperty(PROPERTY_USERS_DN, dnBuilder.toString());
+
+		/*
+		 * Creating directory on LDAP
+		 */
+		String dn = getApplicationProperty(PROPERTY_USERS_DN);
+		if (!StringUtil.isEmpty(dn)) {
+			SearchResult existingEntities = null;
+			try {
+				existingEntities = getConnectionService().findByDN(GroupDAO.GROUP_SEARCH_FILTER, new DN(dn));
+			} catch (LDAPSearchException e) {}
+
+			if (existingEntities == null) {
+				String timeout = getApplicationProperty(
+						ConnectionService.PROPERTY_RESPONSE_TIMEOUT, 
+						ConnectionService.DEFAULT_RESPONSE_TIMEOUT.toString());
+
+				AddRequest request = new AddRequest(new DN(dn));
+				request.setResponseTimeoutMillis(Long.valueOf(timeout));
+				request.addAttribute("objectClass", "top");
+				request.addAttribute("objectClass", OrganizationalUnit.OBJECT_CLASS);
+				request.addAttribute(OrganizationalUnit.ORGANIZATIONAL_UNIT_NAME, ou.substring(3));
+				request.addAttribute(OrganizationalUnit.DESCRIPTION, "Default directory for containing users");
+
+				LDAPConnection connection = getConnectionService().getConnection();
+				LDAPResult response = connection.add(request);
+				connection.close();
+
+				if (response.getResultCode().intValue() != ResultCode.SUCCESS_INT_VALUE) {
+					throw new RuntimeException(response.getResultString());
+				}
+			}
+
+			getSettings().setProperty(PROPERTY_USERS_OU_INITIALIZED, Boolean.TRUE.toString());
+		}
+	}
+
 
 	/*
 	 * (non-Javadoc)

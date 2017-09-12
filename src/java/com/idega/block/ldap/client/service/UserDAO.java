@@ -114,6 +114,11 @@ public interface UserDAO {
 	 * Application property for setting base users directory of LDAP server
 	 */
 	static final String PROPERTY_USERS_OU = "ldap.ou.users";
+
+	/**
+	 * property to define if directory was initialized
+	 */
+	static final String PROPERTY_USERS_OU_INITIALIZED = "ldap.ou.users.initialized";
 	
 	/**
 	 * Default users directory DN
@@ -176,4 +181,12 @@ public interface UserDAO {
 	 * @throws LDAPException if the provided string cannot be parsed as a valid DN.
 	 */
 	DN getDistinguishedName(String uuid) throws LDAPException;
+
+	/**
+	 * 
+	 * <p>Initializes default user directory</p>
+	 * @throws GeneralSecurityException there are problems with TLS/SSL connection.
+	 * @throws LDAPException if a problem occurs while attempting to connect to the specified server.
+	 */
+	void initialize() throws LDAPException, GeneralSecurityException;
 }
