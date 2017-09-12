@@ -92,7 +92,6 @@ import javax.ejb.FinderException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -103,7 +102,6 @@ import com.idega.block.ldap.client.service.ConnectionService;
 import com.idega.block.ldap.client.service.UserDAO;
 import com.idega.core.accesscontrol.data.LoginTable;
 import com.idega.core.accesscontrol.data.LoginTableHome;
-import com.idega.core.accesscontrol.event.LoggedInUserCredentials;
 import com.idega.core.business.DefaultSpringBean;
 import com.idega.core.contact.dao.PhoneDAO;
 import com.idega.core.contact.data.bean.Phone;
@@ -137,7 +135,7 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
  */
 @Service(UserDAO.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-public class UserDAOImpl extends DefaultSpringBean implements UserDAO, ApplicationListener<LoggedInUserCredentials> {
+public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 
 	@Autowired
 	private ConnectionService connectionService;
@@ -598,39 +596,4 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO, Applicati
 
 		return null;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.context.ApplicationListener#onApplicationEvent(org.springframework.context.ApplicationEvent)
-	 */
-	@Override
-	public void onApplicationEvent(LoggedInUserCredentials event) {
-		if (event == null || !getSettings().getBoolean("ldap.auto_sync_enabled", false)) {
-			return;
-		}
-
-		LoginTable login = null;
-		try {
-			login = getLoginTableHome().findByLogin(event.getUserName());
-		} catch (FinderException e) {
-		} catch (Exception e) {
-			getLogger().log(Level.WARNING, "Failed to update member: " + event, e);
-		}
-
-		if (login == null) {
-			return;
-		}
-
-		User user = getUserDAO().getUser(login.getUserId());
-		if (user == null) {
-			return;
-		}
-
-		try {
-			update(user, event.getPassword());
-		} catch (Exception e) {
-			getLogger().log(Level.WARNING, "Failed to update member: " + event, e);
-		}
-	}
-
 }

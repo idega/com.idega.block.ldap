@@ -365,6 +365,10 @@ public class GroupUserDAOImpl extends DefaultSpringBean implements GroupUserDAO,
 	 */
 	@Override
 	public void onApplicationEvent(LoggedInUserCredentials event) {
+		if (event == null || !getSettings().getBoolean("ldap.auto_sync_enabled", false)) {
+			return;
+		}
+		
 		if (event != null) {
 			new Thread(new Runnable() {
 
