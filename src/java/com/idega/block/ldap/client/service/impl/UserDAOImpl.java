@@ -92,7 +92,6 @@ import javax.ejb.FinderException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -100,11 +99,9 @@ import com.idega.block.ldap.client.constants.InternetOrganizationalPerson;
 import com.idega.block.ldap.client.constants.OrganizationalPerson;
 import com.idega.block.ldap.client.constants.Person;
 import com.idega.block.ldap.client.service.ConnectionService;
-import com.idega.block.ldap.client.service.GroupDAO;
 import com.idega.block.ldap.client.service.UserDAO;
 import com.idega.core.accesscontrol.data.LoginTable;
 import com.idega.core.accesscontrol.data.LoginTableHome;
-import com.idega.core.accesscontrol.event.LoggedInUserCredentials;
 import com.idega.core.business.DefaultSpringBean;
 import com.idega.core.contact.dao.PhoneDAO;
 import com.idega.core.contact.data.bean.Phone;
@@ -114,7 +111,6 @@ import com.idega.core.location.data.bean.Address;
 import com.idega.core.location.data.bean.AddressType;
 import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
-import com.idega.user.data.bean.Group;
 import com.idega.user.data.bean.User;
 import com.idega.util.CoreConstants;
 import com.idega.util.ListUtil;
@@ -139,13 +135,10 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
  */
 @Service(UserDAO.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-public class UserDAOImpl extends DefaultSpringBean implements UserDAO, ApplicationListener<LoggedInUserCredentials> {
+public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 
 	@Autowired
 	private ConnectionService connectionService;
-
-	@Autowired
-	private GroupDAO activeDirectoryGroupDAO;
 
 	@Autowired
 	private com.idega.user.dao.UserDAO userDAO;
@@ -155,14 +148,6 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO, Applicati
 
 	@Autowired
 	private AddressDAO addressDAO;
-
-	private GroupDAO getActiveDirectoryGroupDAO() {
-		if (this.activeDirectoryGroupDAO == null) {
-			ELUtil.getInstance().autowire(this);
-		}
-
-		return this.activeDirectoryGroupDAO;
-	}
 
 	private AddressDAO getAddressDAO() {
 		if (this.addressDAO == null) {
@@ -282,17 +267,20 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO, Applicati
 		return null;
 	}
 
-	/**
-	 * 
-	 * @param uuid is {@link User#getUniqueId()}, no UUID added if <code>null</code>
-	 * @return distinguished name object or <code>null</code> on failure
-	 * @throws LDAPException if the provided string cannot be parsed as a valid DN.
+	/*
+	 * (non-Javadoc)
+	 * @see com.idega.block.ldap.client.service.UserDAO#getDistinguishedName(java.lang.String)
 	 */
-	private DN getDistinguishedName(String uuid) throws LDAPException {
+	@Override
+	public DN getDistinguishedName(String uuid) throws LDAPException {
 		String distinguishedName = getApplicationProperty(PROPERTY_USERS_DN, DEFAULT_USERS_DN);
 		if (!StringUtil.isEmpty(distinguishedName)) {
 			if (!StringUtil.isEmpty(uuid)) {
-				return new DN("uid=" + uuid + CoreConstants.COMMA + distinguishedName);
+				StringBuilder dn = new StringBuilder()
+				.append(InternetOrganizationalPerson.USER_ID).append(CoreConstants.EQ).append(uuid)
+				.append(CoreConstants.COMMA).append(distinguishedName);
+
+				return new DN(dn.toString());
 			}
 
 			return new DN(distinguishedName);
@@ -452,13 +440,7 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO, Applicati
 			}
 
 			if (ListUtil.isEmpty(existingUsers)) {
-				entity = create(entity, password);
-				if (entity != null) {
-					List<Group> groups = getActiveDirectoryGroupDAO().update(entity.getUserRepresentative());
-					if (!ListUtil.isEmpty(groups)) {
-						return entity;
-					}
-				}
+				return create(entity, password);
 			}
 
 			ArrayList<Modification> modifications = new ArrayList<>();
@@ -591,13 +573,6 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO, Applicati
 			if (response.getResultCode().intValue() != ResultCode.SUCCESS_INT_VALUE) {
 				throw new RuntimeException(response.getResultString());
 			}
-
-			if (entity != null) {
-				List<Group> groups = getActiveDirectoryGroupDAO().update(entity.getUserRepresentative());
-				if (!ListUtil.isEmpty(groups)) {
-					return entity;
-				}
-			}
 		}
 
 		return entity;
@@ -618,32 +593,5 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO, Applicati
 		}
 
 		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.context.ApplicationListener#onApplicationEvent(org.springframework.context.ApplicationEvent)
-	 */
-	@Override
-	public void onApplicationEvent(LoggedInUserCredentials event) {
-		if (event != null) {
-			LoginTable login = null;
-			try {
-				login = getLoginTableHome().findByLogin(event.getUserName());
-			} catch (FinderException e1) {
-				getLogger().log(Level.WARNING, "Failed to update member, cause of: ", e1);
-			}
-
-			if (login != null) {
-				User user = getUserDAO().getUser(login.getUserId());
-				if (user != null) {
-					try {
-						update(user, event.getPassword());
-					} catch (LDAPException | GeneralSecurityException e) {
-						getLogger().log(Level.WARNING, "Failed to update member, cause of: ", e);
-					}
-				}
-			}
-		}
 	}
 }
