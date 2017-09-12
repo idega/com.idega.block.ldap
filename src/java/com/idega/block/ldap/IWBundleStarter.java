@@ -7,6 +7,13 @@ package com.idega.block.ldap;
  * @author <a href="mailto:eiki@idega.is">Eirikur Hrafnsson </a>
  */
 import java.rmi.RemoteException;
+import java.security.GeneralSecurityException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.idega.block.ldap.client.service.ConnectionService;
+import com.idega.block.ldap.client.service.GroupDAO;
+import com.idega.block.ldap.client.service.UserDAO;
 import com.idega.core.ldap.replication.business.LDAPReplicationBusiness;
 import com.idega.core.ldap.replication.business.LDAPReplicationConstants;
 import com.idega.core.ldap.server.business.EmbeddedLDAPServerBusiness;
@@ -14,10 +21,47 @@ import com.idega.core.ldap.server.business.EmbeddedLDAPServerConstants;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWBundleStartable;
+import com.idega.idegaweb.IWMainApplicationSettings;
 import com.idega.user.business.GroupBusiness;
 import com.idega.user.business.UserBusiness;
+import com.idega.util.expression.ELUtil;
+import com.unboundid.ldap.sdk.LDAPException;
 
 public class IWBundleStarter implements IWBundleStartable,EmbeddedLDAPServerConstants,LDAPReplicationConstants {
+	
+	@Autowired
+	private GroupDAO groupDAO;
+
+	@Autowired
+	private UserDAO userDAO;
+
+	@Autowired
+	private ConnectionService connectionService;
+
+	private GroupDAO getGroupDAO() {
+		if (this.groupDAO == null) {
+			ELUtil.getInstance().autowire(this);
+		}
+
+		return this.groupDAO;
+	}
+
+	private UserDAO getUserDAO() {
+		if (this.userDAO == null) {
+			ELUtil.getInstance().autowire(this);
+		}
+
+		return this.userDAO;
+	}
+
+	private ConnectionService getConnectionService() {
+		if (this.connectionService == null) {
+			ELUtil.getInstance().autowire(this);
+		}
+
+		return this.connectionService;
+	}
+	
 	private UserBusiness userBiz;
 
 	private GroupBusiness groupBiz;
@@ -37,6 +81,21 @@ public class IWBundleStarter implements IWBundleStartable,EmbeddedLDAPServerCons
 	}
 
 	public void start(IWBundle starterBundle) {
+		IWMainApplicationSettings settings = starterBundle.getApplication().getSettings();
+		if (settings.getBoolean("ldap.auto_sync_enabled", false)) {
+			/*
+			 * Initializing default group directory
+			 */
+			try {
+				getConnectionService().initialize();
+				getUserDAO().initialize();
+				getGroupDAO().initialize();
+			} catch (Exception e) {
+				e.printStackTrace(); 
+			}
+		}
+		
+		
 		IWApplicationContext iwac = starterBundle.getApplication().getIWApplicationContext();
 		
 		//start the embedded ldap server if it is auto startable
