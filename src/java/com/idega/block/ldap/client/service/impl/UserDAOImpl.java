@@ -396,10 +396,7 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 			 * Person object information
 			 */
 			request.addAttribute("objectClass", Person.OBJECT_CLASS);
-
-			if (!StringUtil.isEmpty(entity.getLastName())) {
-				request.addAttribute(Person.LAST_NAME, entity.getLastName());
-			}
+			request.addAttribute(Person.LAST_NAME, !StringUtil.isEmpty(entity.getLastName()) ? entity.getLastName() : "-");
 
 			String loginName = getLoginName(entity);
 			if (!StringUtil.isEmpty(loginName)) {
