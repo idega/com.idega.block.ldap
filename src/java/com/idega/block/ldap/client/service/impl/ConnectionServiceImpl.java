@@ -92,17 +92,23 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.idega.block.ldap.client.constants.InternetOrganizationalPerson;
+import com.idega.block.ldap.client.constants.OrganizationalUnit;
 import com.idega.block.ldap.client.constants.Person;
 import com.idega.block.ldap.client.service.ConnectionService;
+import com.idega.block.ldap.client.service.GroupDAO;
+import com.idega.core.builder.data.ICDomain;
 import com.idega.core.business.DefaultSpringBean;
 import com.idega.util.CoreConstants;
 import com.idega.util.StringUtil;
+import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.LDAPSearchException;
+import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
@@ -229,5 +235,58 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 		}
 
 		throw new IllegalArgumentException("Name is not provided, but required!");
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see com.idega.block.ldap.client.service.ConnectionService#initialize()
+	 */
+	@Override
+	public void initialize() throws LDAPException, GeneralSecurityException {
+		String initializationValue = getApplicationProperty(PROPERTY_DOMAIN_OU_INITIALIZED);
+		if (Boolean.TRUE.toString().equals(initializationValue)) {
+			return;
+		}
+
+		String dn = getApplicationProperty(PROPERTY_DOMAIN_DN, DEFAULT_DOMAIN_DN);
+		String ou = getApplicationProperty(PROPERTY_DOMAIN_OU, DEFAULT_DOMAIN_OU);
+		if (!StringUtil.isEmpty(dn)) {
+			ICDomain domain = getIWApplicationContext().getDomain();
+			if (domain != null) {
+				ou = ou.replace("localhost", domain.getServerName());
+				dn = dn.replace("localhost", domain.getServerName());
+				getSettings().setProperty(PROPERTY_DOMAIN_OU, ou);
+				getSettings().setProperty(PROPERTY_DOMAIN_DN, dn);
+				getSettings().setProperty(PROPERTY_BASE_DN, dn);
+			}
+			
+			SearchResult existingEntities = null;
+			try {
+				existingEntities = findByDN(GroupDAO.GROUP_SEARCH_FILTER, new DN(dn));
+			} catch (LDAPSearchException e) {}
+
+			if (existingEntities == null) {
+				String timeout = getApplicationProperty(
+						ConnectionService.PROPERTY_RESPONSE_TIMEOUT, 
+						ConnectionService.DEFAULT_RESPONSE_TIMEOUT.toString());
+
+				AddRequest request = new AddRequest(new DN(dn));
+				request.setResponseTimeoutMillis(Long.valueOf(timeout));
+				request.addAttribute("objectClass", "top");
+				request.addAttribute("objectClass", OrganizationalUnit.OBJECT_CLASS);
+				request.addAttribute(OrganizationalUnit.ORGANIZATIONAL_UNIT_NAME, ou.substring(3));
+				request.addAttribute(OrganizationalUnit.DESCRIPTION, "Default directory for domain");
+
+				LDAPConnection connection = getConnection();
+				LDAPResult response = connection.add(request);
+				connection.close();
+
+				if (response.getResultCode().intValue() != ResultCode.SUCCESS_INT_VALUE) {
+					throw new RuntimeException(response.getResultString());
+				}
+			}
+
+			getSettings().setProperty(PROPERTY_DOMAIN_OU_INITIALIZED, Boolean.TRUE.toString());
+		}
 	}
 }

@@ -170,6 +170,31 @@ public interface ConnectionService {
 	static final String PROPERTY_BASE_DN = "ldap.dn.base";
 
 	/**
+	 * Default users directory DN
+	 */
+	static final String DEFAULT_DOMAIN_OU = "ou=localhost";
+
+	/**
+	 * Application property for setting base users directory of LDAP server
+	 */
+	static final String PROPERTY_DOMAIN_OU = "ldap.ou.domain";
+
+	/**
+	 * Default users directory DN
+	 */
+	static final String DEFAULT_DOMAIN_DN = "ou=localhost," + DEFAULT_BASE_DN;
+
+	/**
+	 * Application property for setting base users directory of LDAP server
+	 */
+	static final String PROPERTY_DOMAIN_DN = "ldap.dn.domain";
+
+	/**
+	 * property to define if directory was initialized
+	 */
+	static final String PROPERTY_DOMAIN_OU_INITIALIZED = "ldap.ou.domain.initialized";
+
+	/**
 	 * Default admin directory DN 
 	 */
 	static final String DEFAULT_ADMIN_DN = "cn=ldapadm," + DEFAULT_BASE_DN;
@@ -264,4 +289,6 @@ public interface ConnectionService {
 	 */
 	SearchResult findByCN(Filter filter, String name)
 			throws LDAPSearchException, LDAPException, GeneralSecurityException;
+
+	void initialize() throws LDAPException, GeneralSecurityException;
 }
