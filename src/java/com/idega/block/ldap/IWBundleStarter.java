@@ -2,18 +2,18 @@ package com.idega.block.ldap;
 
 /**
  * This bundle starter starts up an embedded LDAP server. <br>
- * 
+ *
  * @copyright Idega Software 2004
  * @author <a href="mailto:eiki@idega.is">Eirikur Hrafnsson </a>
  */
 import java.rmi.RemoteException;
-import java.security.GeneralSecurityException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.idega.block.ldap.client.service.ConnectionService;
 import com.idega.block.ldap.client.service.GroupDAO;
 import com.idega.block.ldap.client.service.UserDAO;
+import com.idega.block.ldap.util.IWLDAPUtil;
 import com.idega.core.ldap.replication.business.LDAPReplicationBusiness;
 import com.idega.core.ldap.replication.business.LDAPReplicationConstants;
 import com.idega.core.ldap.server.business.EmbeddedLDAPServerBusiness;
@@ -21,14 +21,12 @@ import com.idega.core.ldap.server.business.EmbeddedLDAPServerConstants;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWBundleStartable;
-import com.idega.idegaweb.IWMainApplicationSettings;
 import com.idega.user.business.GroupBusiness;
 import com.idega.user.business.UserBusiness;
 import com.idega.util.expression.ELUtil;
-import com.unboundid.ldap.sdk.LDAPException;
 
 public class IWBundleStarter implements IWBundleStartable,EmbeddedLDAPServerConstants,LDAPReplicationConstants {
-	
+
 	@Autowired
 	private GroupDAO groupDAO;
 
@@ -61,7 +59,7 @@ public class IWBundleStarter implements IWBundleStartable,EmbeddedLDAPServerCons
 
 		return this.connectionService;
 	}
-	
+
 	private UserBusiness userBiz;
 
 	private GroupBusiness groupBiz;
@@ -80,9 +78,9 @@ public class IWBundleStarter implements IWBundleStartable,EmbeddedLDAPServerCons
 
 	}
 
+	@Override
 	public void start(IWBundle starterBundle) {
-		IWMainApplicationSettings settings = starterBundle.getApplication().getSettings();
-		if (settings.getBoolean("ldap.auto_sync_enabled", false)) {
+		if (IWLDAPUtil.getInstance().isAutoSyncEnabled()) {
 			/*
 			 * Initializing default group directory
 			 */
@@ -91,13 +89,13 @@ public class IWBundleStarter implements IWBundleStartable,EmbeddedLDAPServerCons
 				getUserDAO().initialize();
 				getGroupDAO().initialize();
 			} catch (Exception e) {
-				e.printStackTrace(); 
+				e.printStackTrace();
 			}
 		}
-		
-		
+
+
 		IWApplicationContext iwac = starterBundle.getApplication().getIWApplicationContext();
-		
+
 		//start the embedded ldap server if it is auto startable
 		try {
 			String autoStartLDAPServer = getEmbeddedLDAPServerBusiness(iwac).getPropertyAndCreateIfDoesNotExist(getEmbeddedLDAPServerBusiness(iwac).getLDAPSettings(),PROPS_JAVALDAP_AUTO_START,"false");
@@ -107,8 +105,8 @@ public class IWBundleStarter implements IWBundleStartable,EmbeddedLDAPServerCons
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		
+
+
 		//start all auto startable replicators
 		try {
 			getLDAPReplicationBusiness(iwac).startAllReplicators();
@@ -121,15 +119,16 @@ public class IWBundleStarter implements IWBundleStartable,EmbeddedLDAPServerCons
 	/**
 	 * @see com.idega.idegaweb.IWBundleStartable#stop(IWBundle)
 	 */
+	@Override
 	public void stop(IWBundle starterBundle) {
 		IWApplicationContext iwac = starterBundle.getApplication().getIWApplicationContext();
-		
+
 		try {
 			getEmbeddedLDAPServerBusiness(iwac).stopEmbeddedLDAPServer();
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			getLDAPReplicationBusiness(iwac).stopAllReplicators();
 		} catch (Exception e) {
@@ -140,7 +139,7 @@ public class IWBundleStarter implements IWBundleStartable,EmbeddedLDAPServerCons
 	public GroupBusiness getGroupBusiness(IWApplicationContext iwc) {
 		if (groupBiz == null) {
 			try {
-				groupBiz = (GroupBusiness) com.idega.business.IBOLookup
+				groupBiz = com.idega.business.IBOLookup
 						.getServiceInstance(iwc, GroupBusiness.class);
 			} catch (java.rmi.RemoteException rme) {
 				throw new RuntimeException(rme.getMessage());
@@ -152,7 +151,7 @@ public class IWBundleStarter implements IWBundleStartable,EmbeddedLDAPServerCons
 	public UserBusiness getUserBusiness(IWApplicationContext iwc) {
 		if (userBiz == null) {
 			try {
-				userBiz = (UserBusiness) com.idega.business.IBOLookup
+				userBiz = com.idega.business.IBOLookup
 						.getServiceInstance(iwc, UserBusiness.class);
 			} catch (java.rmi.RemoteException rme) {
 				throw new RuntimeException(rme.getMessage());
@@ -165,7 +164,7 @@ public class IWBundleStarter implements IWBundleStartable,EmbeddedLDAPServerCons
 			IWApplicationContext iwc) {
 		if (embeddedLDAPServerBiz == null) {
 			try {
-				embeddedLDAPServerBiz = (EmbeddedLDAPServerBusiness) com.idega.business.IBOLookup
+				embeddedLDAPServerBiz = com.idega.business.IBOLookup
 						.getServiceInstance(iwc,
 								EmbeddedLDAPServerBusiness.class);
 			} catch (java.rmi.RemoteException rme) {
@@ -174,11 +173,11 @@ public class IWBundleStarter implements IWBundleStartable,EmbeddedLDAPServerCons
 		}
 		return embeddedLDAPServerBiz;
 	}
-	
+
 	public LDAPReplicationBusiness getLDAPReplicationBusiness(IWApplicationContext iwc) {
 		if (ldapReplicationBiz == null) {
 			try {
-				ldapReplicationBiz = (LDAPReplicationBusiness) com.idega.business.IBOLookup.getServiceInstance(iwc, LDAPReplicationBusiness.class);
+				ldapReplicationBiz = com.idega.business.IBOLookup.getServiceInstance(iwc, LDAPReplicationBusiness.class);
 			} catch (java.rmi.RemoteException rme) {
 				throw new RuntimeException(rme.getMessage());
 			}
