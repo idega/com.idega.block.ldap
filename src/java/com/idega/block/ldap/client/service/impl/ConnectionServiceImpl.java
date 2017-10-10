@@ -203,7 +203,7 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 	 */
 	@Override
 	public SearchResult findByDN(Filter filter, String commaSeparatedDN) throws LDAPSearchException, LDAPException, GeneralSecurityException {
-		String baseDN = getApplicationProperty(PROPERTY_BASE_DN, DEFAULT_BASE_DN);
+		String baseDN = getApplicationProperty(PROPERTY_DOMAIN_DN, DEFAULT_DOMAIN_DN);
 		if (!StringUtil.isEmpty(baseDN)) {
 			return findByDN(filter, new DN(commaSeparatedDN + "," + baseDN));
 		}
