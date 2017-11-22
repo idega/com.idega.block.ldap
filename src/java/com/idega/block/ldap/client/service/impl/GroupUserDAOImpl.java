@@ -84,6 +84,7 @@ package com.idega.block.ldap.client.service.impl;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.logging.Level;
 
@@ -109,9 +110,11 @@ import com.idega.user.data.bean.Group;
 import com.idega.user.data.bean.GroupType;
 import com.idega.user.data.bean.User;
 import com.idega.util.CoreConstants;
+import com.idega.util.ListUtil;
 import com.idega.util.StringUtil;
 import com.idega.util.expression.ELUtil;
 import com.unboundid.ldap.sdk.AddRequest;
+import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -122,6 +125,7 @@ import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
 
 /**
  * @version 1.0.0 2017-09-11
@@ -322,10 +326,27 @@ public class GroupUserDAOImpl extends DefaultSpringBean implements GroupUserDAO,
 				/*
 				 * Adding user
 				 */
-				modifications.add(new Modification(
-						ModificationType.ADD,
-						GroupOfUniqueNames.UNIQUE_MEMBER,
-						userDistinguishedName.toString()));
+
+				boolean userExists = Boolean.FALSE;
+				List<SearchResultEntry> entries = existingRelations.getSearchEntries();
+				if (!ListUtil.isEmpty(entries)) {
+					for (SearchResultEntry entry : entries) {
+						Attribute userDNCollection = entry.getAttribute(GroupOfUniqueNames.UNIQUE_MEMBER);
+						if (userDNCollection != null) {
+							String value = userDNCollection.getValue();
+							if (value != null && value.contains(userDistinguishedName.toString())) {
+								userExists = Boolean.TRUE;
+							}
+						}
+					}
+				}
+
+				if (!userExists) {
+					modifications.add(new Modification(
+							ModificationType.ADD,
+							GroupOfUniqueNames.UNIQUE_MEMBER,
+							userDistinguishedName.toString()));
+				}
 
 				ModifyRequest modificationRequest = new ModifyRequest(new DN(relationDistinguishedName.toString()), modifications);
 				LDAPConnection connection = getConnectionService().getConnection();

@@ -215,7 +215,7 @@ public class GroupDAOImpl extends DefaultSpringBean implements GroupDAO {
 					paths.putAll(parentPaths);
 				}
 			} else {
-				StringBuilder path = new StringBuilder(OrganizationalUnit.ORGANIZATIONAL_UNIT_NAME).append(CoreConstants.EQ).append(group.getName());
+				StringBuilder path = new StringBuilder(OrganizationalUnit.ORGANIZATIONAL_UNIT_NAME).append(CoreConstants.EQ).append(getGroupName(group));
 				paths.put(path.toString(), group);
 			}
 		}
