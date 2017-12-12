@@ -109,6 +109,7 @@ import com.idega.user.data.GroupHome;
 import com.idega.user.data.bean.Group;
 import com.idega.user.data.bean.GroupType;
 import com.idega.util.CoreConstants;
+import com.idega.util.DBUtil;
 import com.idega.util.ListUtil;
 import com.idega.util.StringUtil;
 import com.idega.util.expression.ELUtil;
@@ -190,6 +191,7 @@ public class GroupDAOImpl extends DefaultSpringBean implements GroupDAO {
 	private HashMap<String, Group> getPaths(Group group) {
 		HashMap<String, Group> paths = new HashMap<>();
 		if (group != null) {
+			group = DBUtil.getInstance().lazyLoad(group);
 			List<Group> parentGroups = getGroupDAO().findParentGroups(group.getID());
 			if (!ListUtil.isEmpty(parentGroups)) {
 				for (Group parentGroup : parentGroups) {
