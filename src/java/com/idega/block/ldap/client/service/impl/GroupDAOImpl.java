@@ -395,7 +395,11 @@ public class GroupDAOImpl extends DefaultSpringBean implements GroupDAO {
 			}
 
 			if (ListUtil.isEmpty(existingEntities)) {
-				return create(distinguishedName, entity);
+				try {
+					return create(distinguishedName, entity);
+				} catch (LDAPException e) {
+					getLogger().log(Level.WARNING, "Failed to create new record, record will be updated:", e);
+				}
 			}
 
 			ArrayList<Modification> modifications = new ArrayList<>();

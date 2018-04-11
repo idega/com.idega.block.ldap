@@ -289,73 +289,78 @@ public class GroupUserDAOImpl extends DefaultSpringBean implements GroupUserDAO,
 			}
 
 			if (existingRelations == null || existingRelations.getEntryCount() == 0) {
-				create(group, distinguishedName, userDistinguishedName);
-			} else {
-				ArrayList<Modification> modifications = new ArrayList<>();
-
-				/*
-				 * Organizational unit object information
-				 */
-				String groupName = getGroupName(group);
-				if (!StringUtil.isEmpty(groupName)) {
-					modifications.add(new Modification(
-							ModificationType.REPLACE,
-							GroupOfUniqueNames.COMMON_NAME,
-							groupName));
-					modifications.add(new Modification(
-							ModificationType.REPLACE,
-							GroupOfUniqueNames.ORGANIZATIONAL_UNIT_NAME,
-							groupName));
+				try {
+					create(group, distinguishedName, userDistinguishedName);
+					return;
+				} catch (LDAPException e) {
+					getLogger().log(Level.WARNING, "Failed to create new record, record will be updated:", e);
 				}
+			}
 
-				if (!StringUtil.isEmpty(group.getUniqueId())) {
-					modifications.add(new Modification(
-							ModificationType.REPLACE,
-							GroupOfUniqueNames.DESCRIPTION,
-							group.getUniqueId()));
-				}
+			ArrayList<Modification> modifications = new ArrayList<>();
 
-				GroupType type = group.getGroupType();
-				if (type != null && !StringUtil.isEmpty(type.getGroupType())) {
-					modifications.add(new Modification(
-							ModificationType.REPLACE,
-							GroupOfUniqueNames.BUSINESS_CATEGORY,
-							type.getGroupType()));
-				}
+			/*
+			 * Organizational unit object information
+			 */
+			String groupName = getGroupName(group);
+			if (!StringUtil.isEmpty(groupName)) {
+				modifications.add(new Modification(
+						ModificationType.REPLACE,
+						GroupOfUniqueNames.COMMON_NAME,
+						groupName));
+				modifications.add(new Modification(
+						ModificationType.REPLACE,
+						GroupOfUniqueNames.ORGANIZATIONAL_UNIT_NAME,
+						groupName));
+			}
 
-				/*
-				 * Adding user
-				 */
+			if (!StringUtil.isEmpty(group.getUniqueId())) {
+				modifications.add(new Modification(
+						ModificationType.REPLACE,
+						GroupOfUniqueNames.DESCRIPTION,
+						group.getUniqueId()));
+			}
 
-				boolean userExists = Boolean.FALSE;
-				List<SearchResultEntry> entries = existingRelations.getSearchEntries();
-				if (!ListUtil.isEmpty(entries)) {
-					for (SearchResultEntry entry : entries) {
-						Attribute userDNCollection = entry.getAttribute(GroupOfUniqueNames.UNIQUE_MEMBER);
-						if (userDNCollection != null) {
-							String value = userDNCollection.getValue();
-							if (value != null && value.contains(userDistinguishedName.toString())) {
-								userExists = Boolean.TRUE;
-							}
+			GroupType type = group.getGroupType();
+			if (type != null && !StringUtil.isEmpty(type.getGroupType())) {
+				modifications.add(new Modification(
+						ModificationType.REPLACE,
+						GroupOfUniqueNames.BUSINESS_CATEGORY,
+						type.getGroupType()));
+			}
+
+			/*
+			 * Adding user
+			 */
+
+			boolean userExists = Boolean.FALSE;
+			List<SearchResultEntry> entries = existingRelations.getSearchEntries();
+			if (!ListUtil.isEmpty(entries)) {
+				for (SearchResultEntry entry : entries) {
+					Attribute userDNCollection = entry.getAttribute(GroupOfUniqueNames.UNIQUE_MEMBER);
+					if (userDNCollection != null) {
+						String value = userDNCollection.getValue();
+						if (value != null && value.contains(userDistinguishedName.toString())) {
+							userExists = Boolean.TRUE;
 						}
 					}
 				}
+			}
 
-				if (!userExists) {
-					modifications.add(new Modification(
-							ModificationType.ADD,
-							GroupOfUniqueNames.UNIQUE_MEMBER,
-							userDistinguishedName.toString()));
-				}
+			if (!userExists) {
+				modifications.add(new Modification(
+						ModificationType.ADD,
+						GroupOfUniqueNames.UNIQUE_MEMBER,
+						userDistinguishedName.toString()));
+			}
 
-				ModifyRequest modificationRequest = new ModifyRequest(new DN(relationDistinguishedName.toString()), modifications);
-				LDAPConnection connection = getConnectionService().getConnection();
-				LDAPResult response = connection.modify(modificationRequest);
-				connection.close();
+			ModifyRequest modificationRequest = new ModifyRequest(new DN(relationDistinguishedName.toString()), modifications);
+			LDAPConnection connection = getConnectionService().getConnection();
+			LDAPResult response = connection.modify(modificationRequest);
+			connection.close();
 
-				if (response.getResultCode().intValue() != ResultCode.SUCCESS_INT_VALUE) {
-					throw new RuntimeException(response.getResultString());
-				}
+			if (response.getResultCode().intValue() != ResultCode.SUCCESS_INT_VALUE) {
+				throw new RuntimeException(response.getResultString());
 			}
 		}
 	}

@@ -497,7 +497,11 @@ public class UserDAOImpl extends DefaultSpringBean implements UserDAO {
 			}
 
 			if (ListUtil.isEmpty(existingUsers)) {
-				return create(entity, password);
+				try {
+					return create(entity, password);
+				} catch (LDAPException e) {
+					getLogger().log(Level.WARNING, "Failed to create new record, record will be updated:", e);
+				}
 			}
 
 			ArrayList<Modification> modifications = new ArrayList<>();
