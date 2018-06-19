@@ -82,8 +82,10 @@
  */
 package com.idega.block.ldap.client.service.impl;
 
+import java.net.Socket;
 import java.security.GeneralSecurityException;
 
+import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
@@ -127,7 +129,9 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 
 	private LDAPConnectionOptions connectionOptions = null;
 
-	private SSLSocketFactory socketFactory = null;
+	private SSLSocketFactory sslSocketFactory = null;
+
+	private SocketFactory socketFactory = null;
 
 	private TrustManager trustManager = null;
 
@@ -155,9 +159,17 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 		return this.connectionOptions;
 	}
 
-	private SSLSocketFactory getSocketFactory() throws GeneralSecurityException {
+	private SSLSocketFactory getSSLSocketFactory() throws GeneralSecurityException {
+		if (this.sslSocketFactory == null) {
+		    this.sslSocketFactory = new SSLUtil(null, getTrustManager()).createSSLSocketFactory();
+		}
+
+		return this.sslSocketFactory;
+	}
+
+	private SocketFactory getSocketFactory() throws GeneralSecurityException {
 		if (this.socketFactory == null) {
-		    this.socketFactory = new SSLUtil(null, getTrustManager()).createSSLSocketFactory();
+		    this.socketFactory = SocketFactory.getDefault(); 
 		}
 
 		return this.socketFactory;
@@ -174,7 +186,11 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 		String adminDN = getApplicationProperty(PROPERTY_ADMIN_DN, DEFAULT_ADMIN_DN);
 		String adminDNPassword = getApplicationProperty(PROPERTY_ADMIN_DN_PASSWORD, DEFAULT_ADMIN_DN_PASSWORD);
 
-		return new LDAPConnection(getSocketFactory(), getConnectionOptions(), domain, Integer.valueOf(port), adminDN, adminDNPassword);
+		if (Integer.valueOf(port) > 389) {
+			return new LDAPConnection(getSSLSocketFactory(), getConnectionOptions(), domain, Integer.valueOf(port), adminDN, adminDNPassword);
+		} else {
+			return new LDAPConnection(getSocketFactory(), getConnectionOptions(), domain, Integer.valueOf(port), adminDN, adminDNPassword);
+		}
 	}
 
 	/*
