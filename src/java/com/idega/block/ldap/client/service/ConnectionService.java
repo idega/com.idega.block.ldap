@@ -147,7 +147,12 @@ public interface ConnectionService {
 	/**
 	 * Application property for setting domain name or IP address of LDAP server
 	 */
-	static final String PROPERTY_DOMAIN = "ldap.domain";
+	static final String PROPERTY_PRIMARY_DOMAIN = "ldap.domain";
+
+	/*
+	 * Additional domain name to work around SSL connection problems
+	 */
+	static final String PROPERTY_SECONDARY_DOMAIN = "ldap.domain.secondary";
 
 	/**
 	 * Default port is SSL port for security reasons
