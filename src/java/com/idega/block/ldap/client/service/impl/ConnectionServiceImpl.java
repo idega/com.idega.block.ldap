@@ -89,6 +89,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -122,6 +123,7 @@ import com.unboundid.util.ssl.ValidityDateTrustManager;
  * @version 1.0.0 2017-08-10
  * @author <a href="mailto:martynas@idega.is">Martynas Stakė</a>
  */
+@Primary
 @Service
 @Scope(BeanDefinition.SCOPE_SINGLETON)
 public class ConnectionServiceImpl extends DefaultSpringBean implements ConnectionService {
@@ -138,8 +140,8 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 		if (this.trustManager == null) {
 			this.trustManager = new AggregateTrustManager(Boolean.TRUE,
 					new HostNameTrustManager(Boolean.TRUE, 
-							getApplicationProperty(PROPERTY_PRIMARY_DOMAIN, DEFAULT_DOMAIN),
-							getApplicationProperty(PROPERTY_SECONDARY_DOMAIN, DEFAULT_DOMAIN)),
+							getPrimaryDomain(),
+							getSecondaryDomain()),
 					new ValidityDateTrustManager());
 		}
 
@@ -174,21 +176,106 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 		return this.socketFactory;
 	}
 
+	public String getPrimaryDomain() {
+		return getApplicationProperty(PROPERTY_PRIMARY_DOMAIN, DEFAULT_DOMAIN);
+	}
+
+	public String getSecondaryDomain() {
+		return getApplicationProperty(PROPERTY_SECONDARY_DOMAIN, DEFAULT_DOMAIN);
+	}
+
+	public String getPort() {
+		return getApplicationProperty(PROPERTY_PORT, DEFAULT_PORT);
+	}
+
+	public String getAdminDN() {
+		return getApplicationProperty(PROPERTY_ADMIN_DN, DEFAULT_ADMIN_DN);
+	}
+
+	public String getAdminPassword() {
+		return getApplicationProperty(PROPERTY_ADMIN_DN_PASSWORD, DEFAULT_ADMIN_DN_PASSWORD);
+	}
+
+	public String getDN() {
+		return getApplicationProperty(PROPERTY_DOMAIN_DN, DEFAULT_DOMAIN_DN);
+	}
+	
+	public void setDN(String distinguishedName) {
+		if (!StringUtil.isEmpty(distinguishedName)) {
+			getSettings().setProperty(PROPERTY_DOMAIN_DN, distinguishedName);
+		}
+	}
+
+	public void setBaseDN(String distinguishedName) {
+		if (!StringUtil.isEmpty(distinguishedName)) {
+			getSettings().setProperty(PROPERTY_BASE_DN, distinguishedName);
+		}
+	}
+
+	public String getOriganizationUnit() {
+		return getApplicationProperty(PROPERTY_DOMAIN_OU, DEFAULT_DOMAIN_OU);
+	}
+
+	public void setOrganizationUnit(String value) {
+		if (!StringUtil.isEmpty(value)) {
+			getSettings().setProperty(PROPERTY_DOMAIN_OU, value);
+		}
+	}
+
+	public Integer getResponseTimeout() {
+		String value = getApplicationProperty(
+				ConnectionService.PROPERTY_RESPONSE_TIMEOUT,
+				ConnectionService.DEFAULT_RESPONSE_TIMEOUT.toString());
+		if (value != null) {
+			return Integer.valueOf(value);
+		}
+
+		return null;
+	}
+
+	public Integer getResponseSize() {
+		String value = getApplicationProperty(
+				PROPERTY_RESPONSE_SIZE_LIMIT, 
+				DEFAULT_RESPONSE_SIZE_LIMIT.toString());
+		if (!StringUtil.isEmpty(value)) {
+			return Integer.valueOf(value);
+		}
+
+		return null;
+	}
+
+	public boolean isInitialized() {
+		String value = getApplicationProperty(PROPERTY_DOMAIN_OU_INITIALIZED, Boolean.FALSE.toString());
+		if (!StringUtil.isEmpty(value)) {
+			return Boolean.valueOf(value);
+		}
+
+		return Boolean.FALSE;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see com.idega.block.ldap.client.service.ConnectionService#getConnection()
 	 */
 	@Override
 	public LDAPConnection getConnection() throws GeneralSecurityException, LDAPException {
-		String domain = getApplicationProperty(PROPERTY_PRIMARY_DOMAIN, DEFAULT_DOMAIN);
-		String port = getApplicationProperty(PROPERTY_PORT, DEFAULT_PORT);
-		String adminDN = getApplicationProperty(PROPERTY_ADMIN_DN, DEFAULT_ADMIN_DN);
-		String adminDNPassword = getApplicationProperty(PROPERTY_ADMIN_DN_PASSWORD, DEFAULT_ADMIN_DN_PASSWORD);
-
+		String port = getPort();
 		if (Integer.valueOf(port) > 389) {
-			return new LDAPConnection(getSSLSocketFactory(), getConnectionOptions(), domain, Integer.valueOf(port), adminDN, adminDNPassword);
+			return new LDAPConnection(
+					getSSLSocketFactory(), 
+					getConnectionOptions(), 
+					getPrimaryDomain(), 
+					Integer.valueOf(port), 
+					getAdminDN(), 
+					getAdminPassword());
 		} else {
-			return new LDAPConnection(getSocketFactory(), getConnectionOptions(), domain, Integer.valueOf(port), adminDN, adminDNPassword);
+			return new LDAPConnection(
+					getSocketFactory(), 
+					getConnectionOptions(), 
+					getPrimaryDomain(), 
+					Integer.valueOf(port), 
+					getAdminDN(), 
+					getAdminPassword());
 		}
 	}
 
@@ -198,12 +285,9 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 	 */
 	@Override
 	public SearchResult findByDN(Filter filter, DN distinguishedName) throws LDAPSearchException, LDAPException, GeneralSecurityException {
-		String timeout = getApplicationProperty(PROPERTY_RESPONSE_TIMEOUT, DEFAULT_RESPONSE_TIMEOUT.toString());
-		String size = getApplicationProperty(PROPERTY_RESPONSE_SIZE_LIMIT, DEFAULT_RESPONSE_SIZE_LIMIT.toString());
-
 		SearchRequest request = new SearchRequest(distinguishedName.toString(), SearchScope.SUB, filter);
-		request.setSizeLimit(Integer.valueOf(size));
-		request.setTimeLimitSeconds(Integer.valueOf(timeout));
+		request.setSizeLimit(getResponseSize());
+		request.setTimeLimitSeconds(getResponseTimeout());
 
 		LDAPConnection connection = getConnection();
 		SearchResult response = connection.search(request);
@@ -218,7 +302,7 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 	 */
 	@Override
 	public SearchResult findByDN(Filter filter, String commaSeparatedDN) throws LDAPSearchException, LDAPException, GeneralSecurityException {
-		String baseDN = getApplicationProperty(PROPERTY_DOMAIN_DN, DEFAULT_DOMAIN_DN);
+		String baseDN = getDN();
 		if (!StringUtil.isEmpty(baseDN)) {
 			return findByDN(filter, new DN(commaSeparatedDN + CoreConstants.COMMA + baseDN));
 		}
@@ -258,13 +342,12 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 	 */
 	@Override
 	public void initialize() throws LDAPException, GeneralSecurityException {
-		String initializationValue = getApplicationProperty(PROPERTY_DOMAIN_OU_INITIALIZED);
-		if (Boolean.TRUE.toString().equals(initializationValue)) {
+		if (isInitialized()) {
 			return;
 		}
 
-		String dn = getApplicationProperty(PROPERTY_DOMAIN_DN, DEFAULT_DOMAIN_DN);
-		String ou = getApplicationProperty(PROPERTY_DOMAIN_OU, DEFAULT_DOMAIN_OU);
+		String dn = getDN();
+		String ou = getOriganizationUnit();
 		if (!StringUtil.isEmpty(dn)) {
 			ICDomain domain = getIWApplicationContext().getDomain();
 			if (domain != null && !StringUtil.isEmpty(domain.getServerName())) {
@@ -282,12 +365,8 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 			} catch (LDAPSearchException e) {}
 
 			if (existingEntities == null) {
-				String timeout = getApplicationProperty(
-						ConnectionService.PROPERTY_RESPONSE_TIMEOUT,
-						ConnectionService.DEFAULT_RESPONSE_TIMEOUT.toString());
-
 				AddRequest request = new AddRequest(new DN(dn));
-				request.setResponseTimeoutMillis(Long.valueOf(timeout));
+				request.setResponseTimeoutMillis(getResponseTimeout());
 				request.addAttribute("objectClass", "top");
 				request.addAttribute("objectClass", OrganizationalUnit.OBJECT_CLASS);
 				request.addAttribute(OrganizationalUnit.ORGANIZATIONAL_UNIT_NAME, ou.substring(3));
