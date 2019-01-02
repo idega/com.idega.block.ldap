@@ -134,9 +134,9 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 
 	private SocketFactory socketFactory = null;
 
-	private TrustManager trustManager = null;
+	protected TrustManager trustManager = null;
 
-	private TrustManager getTrustManager() {
+	public TrustManager getTrustManager() {
 		if (this.trustManager == null) {
 			this.trustManager = new AggregateTrustManager(Boolean.TRUE,
 					new HostNameTrustManager(Boolean.TRUE, 

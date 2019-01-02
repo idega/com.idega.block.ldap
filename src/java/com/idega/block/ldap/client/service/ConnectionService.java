@@ -100,6 +100,11 @@ import com.unboundid.ldap.sdk.SearchResult;
  * @author <a href="mailto:martynas@idega.is">Martynas Stakė</a>
  */
 public interface ConnectionService {
+	
+	static final String PROPERTY_KEY_STORE_FILENAME = "javax.net.ssl.keyStore";
+	
+	static final String PROPERTY_KEY_STORE_PASSWORD = "javax.net.ssl.keyStorePassword";
+	static final String DEFAULT_KEY_STORE_PASSWORD = "none";
 
 	/**
 	 * No timeout by default
