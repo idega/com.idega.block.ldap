@@ -287,7 +287,7 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 	public SearchResult findByDN(Filter filter, DN distinguishedName) throws LDAPSearchException, LDAPException, GeneralSecurityException {
 		SearchRequest request = new SearchRequest(distinguishedName.toString(), SearchScope.SUB, filter);
 		request.setSizeLimit(getResponseSize());
-		request.setScope(SearchScope.ONE);
+		request.setScope(SearchScope.SUB);
 		request.setTimeLimitSeconds(getResponseTimeout());
 
 		LDAPConnection connection = getConnection();
