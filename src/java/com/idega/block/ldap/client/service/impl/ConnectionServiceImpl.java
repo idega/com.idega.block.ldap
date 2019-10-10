@@ -352,8 +352,11 @@ public class ConnectionServiceImpl extends DefaultSpringBean implements Connecti
 		if (!StringUtil.isEmpty(dn)) {
 			ICDomain domain = getIWApplicationContext().getDomain();
 			if (domain != null && !StringUtil.isEmpty(domain.getServerName())) {
-				ou = ou.replace("localhost", domain.getServerName());
-				dn = dn.replace("localhost", domain.getServerName());
+				String serverName = domain.getServerName();
+				serverName = serverName.substring(serverName.lastIndexOf("/") + 1);
+				
+				ou = ou.replace("localhost", serverName);
+				dn = dn.replace("localhost", serverName);
 
 				getSettings().setProperty(PROPERTY_DOMAIN_OU, ou);
 				getSettings().setProperty(PROPERTY_DOMAIN_DN, dn);
